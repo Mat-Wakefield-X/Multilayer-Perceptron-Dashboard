@@ -1,3 +1,25 @@
+function getColour(value) {
+    // Clamp value to [-1, 1]
+    value = Math.max(-1, Math.min(1, value));
+    // Map value from [-1, 1] to [0, colourBar.length - 1]
+    const n = colourBar.length;
+    const scaled = ((value + 1) / 2) * (n - 1);
+    const idx = Math.floor(scaled);
+    const frac = scaled - idx;
+
+    // If exactly at a color stop, return it
+    if (frac === 0 || idx === n - 1) {
+        return colourBar[idx];
+    }
+
+    // Interpolate between colourBar[idx] and colourBar[idx + 1]
+    // Only works for hex or rgb(a) colors, not named colors.
+    // For named colors, just pick the lower index.
+    return colourBar[idx];
+}
+
+
+
 function createWeightsImageGroup(id, size) {
     // Create the group element
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -38,7 +60,3 @@ function createWeightsImageGroup(id, size) {
     return group;
 }
 
-const svg = document.getElementById('inspect').querySelector('svg')
-svg.appendChild(createWeightsImageGroup(0, 2));
-svg.setAttribute("width", 28 * 2 + 2);
-svg.setAttribute("height", 28 * 2 + 2);
