@@ -25,7 +25,10 @@
             <!-- Inspect content goes here -->
             <h2>Inspect</h2>
             <p>Inspect your multilayer perceptron models here.</p>
-            <button class="modern-btn" id="generate-features-btn">Generate Feature Images</button>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="modern-btn" id="generate-features-btn">Generate Feature Images</button>
+                <span id="feature-spinner" class="spinner" style="display: none;"></span>
+            </div>
             <svg id="features_svg" viewbox="-1 -1 1161 2321"></svg>
             <p>Test</p>
         </section>
@@ -39,5 +42,6 @@
     <script src="js/navigation.js"></script>
     <script type="module" src="js/init.js"></script>
     <script type="module" src="js/draw_weights.js"></script>
+    <script type="module" src="js/events.js"></script>
 </body>
 </html>

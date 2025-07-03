@@ -80,7 +80,7 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-function generateEncodingImages() {
+export function generateEncodingImages() {
     const svg = document.getElementById('features_svg');
     const size = 2;
     const imageSize = 28 * size + 2; // 58
