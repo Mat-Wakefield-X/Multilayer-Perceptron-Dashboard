@@ -1,30 +1,39 @@
+import { weights1, weights2, colourBar } from './init.js';
+
+
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
 function getColour(value) {
     // Clamp value to [-1, 1]
     value = Math.max(-1, Math.min(1, value));
-    // Map value from [-1, 1] to [0, colourBar.length - 1]
     const n = colourBar.length;
     const scaled = ((value + 1) / 2) * (n - 1);
     const idx = Math.floor(scaled);
     const frac = scaled - idx;
 
-    // If exactly at a color stop, return it
     if (frac === 0 || idx === n - 1) {
         return colourBar[idx];
     }
 
     // Interpolate between colourBar[idx] and colourBar[idx + 1]
-    // Only works for hex or rgb(a) colors, not named colors.
-    // For named colors, just pick the lower index.
-    return colourBar[idx];
+    const c1 = colourBar[idx];
+    const c2 = colourBar[idx + 1];
+    const rgb = [
+        Math.round(lerp(c1[0], c2[0], frac)),
+        Math.round(lerp(c1[1], c2[1], frac)),
+        Math.round(lerp(c1[2], c2[2], frac))
+    ];
+    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
 }
-
 
 
 function createWeightsImageGroup(id, size) {
     // Create the group element
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "weights_image");
-    group.setAttribute("id", `node${id}`); // Set the ID for the group
+    group.setAttribute("id", `node-${id}`); // Set the ID for the group
 
     // Calculate border size
     const gridSize = 28 * size;
@@ -60,3 +69,25 @@ function createWeightsImageGroup(id, size) {
     return group;
 }
 
+function generateWeightsImage(id, size) {
+    const group = createWeightsImageGroup(id, size);
+    const cells = group.querySelectorAll('.cell');
+    for (let i = 0; i < 784; i++) {
+        const value = weights1[i][id];
+        const colour = getColour(value);
+        cells[i].setAttribute('fill', colour);
+    }
+    return group;
+}
+
+const svg = document.querySelector('#inspect svg');
+svg.setAttribute('viewBox', '-1 -1 600 600');
+const image1 = generateWeightsImage(0, 5);
+const image2 = generateWeightsImage(1, 5);
+const image3 = generateWeightsImage(3, 5);
+
+image2.setAttribute('transform', 'translate(142, 0)'); // Move the second image to the right
+image3.setAttribute('transform', 'translate(284, 0)'); // Move the third image down
+svg.appendChild(image1);
+svg.appendChild(image2);
+svg.appendChild(image3);
