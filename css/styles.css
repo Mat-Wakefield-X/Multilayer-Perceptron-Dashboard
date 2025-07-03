@@ -1,0 +1,86 @@
+/* Reset and base styles */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f7f9fb;
+    color: #222;
+}
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+.title-bar {
+    display: flex;
+    flex-direction: column;
+    background: #222e3a;
+    color: #fff;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.title-bar-main {
+    padding: 1rem 2rem 0.5rem 2rem;
+    font-size: 1.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 2rem;
+}
+.tab-btn {
+    background: none;
+    border: none;
+    color: #b0c4d6;
+    font-size: 1rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.5rem 0.5rem 0 0;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.tab-btn.active, .tab-btn:focus {
+    background: #fff;
+    color: #222e3a;
+    font-weight: 600;
+    outline: none;
+}
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+.section {
+    display: none;
+    width: 100%;
+    max-width: 900px;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 2rem;
+    min-height: 300px;
+    transition: box-shadow 0.2s;
+}
+.section.active {
+    display: block;
+}
+@media (max-width: 700px) {
+    .main-content {
+        padding: 1rem;
+    }
+    .section {
+        padding: 1rem;
+    }
+    .title-bar-main {
+        font-size: 1.1rem;
+        padding: 0.7rem 1rem 0.3rem 1rem;
+    }
+    .tab-bar {
+        padding: 0.3rem 1rem;
+    }
+}
