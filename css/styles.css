@@ -58,7 +58,7 @@ body {
 .section {
     display: none;
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
     background: #fff;
     border-radius: 1rem;
     box-shadow: 0 2px 16px rgba(0,0,0,0.07);
@@ -68,6 +68,27 @@ body {
 }
 .section.active {
     display: block;
+}
+.modern-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #4f8cff 0%, #235390 100%);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(79,140,255,0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    margin-bottom: 1.2rem;
+}
+.modern-btn:hover, .modern-btn:focus {
+    background: linear-gradient(90deg, #235390 0%, #4f8cff 100%);
+    box-shadow: 0 4px 16px rgba(79,140,255,0.15);
+    transform: translateY(-2px) scale(1.03);
+    outline: none;
 }
 @media (max-width: 700px) {
     .main-content {

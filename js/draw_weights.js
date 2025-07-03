@@ -80,14 +80,27 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-const svg = document.querySelector('#inspect svg');
-svg.setAttribute('viewBox', '-1 -1 600 600');
-const image1 = generateWeightsImage(0, 5);
-const image2 = generateWeightsImage(1, 5);
-const image3 = generateWeightsImage(3, 5);
+function generateEncodingImages() {
+    const svg = document.getElementById('features_svg');
+    const size = 2;
+    const imageSize = 28 * size + 2; // 58
+    const columns = 20;
+    for (let i = 0; i < 800; i++) {
+        const group = generateWeightsImage(i, size);
+        const col = i % columns;
+        const row = Math.floor(i / columns);
+        group.setAttribute('transform', `translate(${col * imageSize}, ${row * imageSize})`);
+        svg.appendChild(group);
+    }
+}
 
-image2.setAttribute('transform', 'translate(142, 0)'); // Move the second image to the right
-image3.setAttribute('transform', 'translate(284, 0)'); // Move the third image down
-svg.appendChild(image1);
-svg.appendChild(image2);
-svg.appendChild(image3);
+// const svg = document.querySelector('#inspect svg');
+// const image1 = generateWeightsImage(0, 5);
+// const image2 = generateWeightsImage(1, 5);
+// const image3 = generateWeightsImage(3, 5);
+
+// image2.setAttribute('transform', 'translate(142, 0)'); // Move the second image to the right
+// image3.setAttribute('transform', 'translate(284, 0)'); // Move the third image down
+// svg.appendChild(image1);
+// svg.appendChild(image2);
+// svg.appendChild(image3);
