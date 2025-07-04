@@ -5,7 +5,11 @@ tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         // Remove active from all
         tabBtns.forEach(b => b.classList.remove('active'));
-        sections.forEach(s => s.classList.remove('active'));
+        sections.forEach(s => {
+            if (s.id !== 'controls' && s.id !== 'sym:section#Information.section.active') {
+            s.classList.remove('active');
+            }
+        });
         // Add active to clicked
         btn.classList.add('active');
         document.getElementById(btn.dataset.section).classList.add('active');

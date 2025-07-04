@@ -4,7 +4,7 @@ function applyEventListener(elements) {
     elements.forEach(img => {
         img.addEventListener('mouseenter', function (e) {
             // Extract feature number from src
-            const match = img.src.match(/feature_(\d+)\.svg/);
+            const match = img.id.match(/feature_(\d+)/);
             const num = match ? match[1] : '?';
             // Prepare feature object for tooltip
             const feature = {

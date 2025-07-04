@@ -54,17 +54,20 @@ body {
     align-items: flex-start;
     padding: 2rem;
     box-sizing: border-box;
+    flex-direction: row;
+    gap: 0;
 }
 .section {
     display: none;
-    width: 100%;
-    max-width: 1200px;
+    width: 90%;
+    max-width: 1050px;
     background: #fff;
     border-radius: 1rem;
     box-shadow: 0 2px 16px rgba(0,0,0,0.07);
     padding: 2rem;
     min-height: 300px;
     transition: box-shadow 0.2s;
+    margin-bottom: 1rem;
 }
 .section.active {
     display: block;
@@ -154,4 +157,109 @@ body {
     border: 1px solid #dbeafe;
     background: #f7f9fb;
     box-shadow: 0 2px 8px rgba(79,140,255,0.07);
+}
+
+/* Aside layout and sticky/affix behavior */
+.aside {
+    /* background: #f2f6fa; */
+    border-radius: 0.7rem;
+    box-shadow: 0 2px 8px rgba(79,140,255,0.06);
+    padding: 1.2rem 1.5rem;
+    margin: 1.2rem 0 0 2rem;
+    width: 30%;
+    /* min-width: 220px;
+    max-width: 450px; */
+    font-size: 1rem;
+    color: #222e3a;
+    position: sticky;
+    right: 2rem;
+    top: 2rem;
+    z-index: 100;
+    /* Will be overridden in portrait/mobile */
+    display: block;
+}
+
+/* Layout for main-content with asides */
+.main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    box-sizing: border-box;
+    flex-direction: row;
+    gap: 0;
+}
+
+/* Stack asides vertically on the right in landscape */
+@media (min-width: 701px) and (orientation: landscape) {
+    .main-content {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+    .section {
+        flex: 1 1 0;
+        max-width: 1200px;
+    }
+    .aside {
+        position: sticky;
+        top: 2rem;
+        right: 2rem;
+        margin-left: 2rem;
+        margin-top: 0;
+        margin-bottom: 1.2rem;
+        display: block;
+    }
+    .aside + .aside {
+        margin-top: 1.2rem;
+    }
+}
+
+/* Asides side by side at top in portrait */
+@media (min-width: 701px) and (orientation: portrait) {
+    .main-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .section {
+        order: 2;
+        margin-top: 1.5rem;
+    }
+    .aside {
+        position: sticky;
+        top: 0;
+        right: auto;
+        left: 0;
+        width: 95%;
+        max-width: none;
+        min-width: 0;
+        margin: 0 1.2rem 0 0;
+        display: inline-block;
+        vertical-align: top;
+        z-index: 101;
+    }
+    .aside + .aside {
+        margin-left: 0.7rem;
+    }
+}
+
+/* Mobile: asides are not sticky, just flow in the document */
+@media (max-width: 700px) {
+    .main-content {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    .section {
+        padding: 1rem;
+        margin-top: 0;
+    }
+    .aside {
+        position: static;
+        margin: 1rem 0 0 0;
+        width: 90%;
+        max-width: none;
+        min-width: 0;
+        display: block;
+        box-shadow: 0 1px 4px rgba(79,140,255,0.04);
+    }
 }

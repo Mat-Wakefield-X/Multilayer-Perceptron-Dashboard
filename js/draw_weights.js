@@ -116,6 +116,7 @@ export async function displayEncodingSVGs() {
     for (let i = 0; i < count; i++) {
         const img = document.createElement('img');
         img.src = `images/encodings/feature_${i}.svg`;
+        img.id = `feature_${i}`;
         img.style.display = 'inline-block';
         img.style.margin = '2px';
         img.width = 56;
