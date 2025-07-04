@@ -25,5 +25,6 @@ await displayEncodingSVGs().then(svgs => {
       document.getElementById('feature-spinner').setAttribute('style', 'display: none;');
       svgs.setAttribute('style', 'display: block;');
   });
+  applyEventListener(svgs.querySelectorAll('img'));
   console.log('Encoding SVGs displayed successfully');
 });

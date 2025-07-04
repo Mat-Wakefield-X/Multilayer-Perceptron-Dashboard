@@ -10,8 +10,8 @@
     <header class="title-bar">
         <div class="title-bar-main">Multilayer Perceptron Inspection Dashboard</div>
         <nav class="tab-bar">
-            <button class="tab-btn active" data-section="dashboard">Dashboard</button>
-            <button class="tab-btn" data-section="inspect">Inspect</button>
+            <button class="tab-btn" data-section="dashboard">Dashboard</button>
+            <button class="tab-btn active" data-section="inspect">Inspect</button>
             <button class="tab-btn" data-section="info">Information</button>
         </nav>
     </header>
@@ -24,10 +24,10 @@
         <section id="inspect" class="section active">
             <!-- Inspect content goes here -->
             <h2>Inspect</h2>
-            <p>Inspect the encoding</p>
             <div id="encoding_features">
                 <span id="feature-spinner" class="spinner" style="display: inline-block;"></span>
             </div>
+            <div id="encoding-tooltip" style="display:none; position:fixed; z-index:9999;"></div>
         </section>
         <section id="info" class="section">
             <!-- Information content goes here -->
@@ -40,5 +40,6 @@
     <script src="js/navigation.js"></script>
     <script type="module" src="js/init.js"></script>
     <script type="module" src="js/draw_weights.js"></script>
+    <script src="js/interactions.js"></script>
 </body>
 </html>
