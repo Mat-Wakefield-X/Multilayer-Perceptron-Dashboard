@@ -68,13 +68,12 @@ body {
     min-height: 300px;
     transition: box-shadow 0.2s;
     margin-bottom: 1rem;
-    flex-direction: row;
 }
 .section.active {
     display: block;
 }
 .subsection {
-    max-width: 170px;
+    max-width: 160px;
     border-radius: 0.5rem;
     border-style: solid;
     border-width: 1px;
@@ -92,7 +91,7 @@ body {
 
 /* Side-by-side .subsection inside #controls */
 #controls {
-    display: flex;
+    display: block;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 0;
