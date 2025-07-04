@@ -1,17 +1,16 @@
-function applyEventListener(elements) {
+import { nodeSelections } from "./init.js";
+
+export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
     console.log(elements);
     elements.forEach(img => {
         img.addEventListener('mouseenter', function (e) {
-            // Extract feature number from src
-            const match = img.id.match(/feature_(\d+)/);
-            const num = match ? match[1] : '?';
-            // Prepare feature object for tooltip
-            const feature = {
-                name: `Feature encoding #${num}`,
-                description: ''
-            };
-            showEncodingTooltip(e, feature, img);
+            showEncodingTooltip(e, extractFeatureNumber(img), img);
+        });
+
+        img.addEventListener('touchstart', function (e) {
+            // For touch devices, show tooltip on touch
+            showEncodingTooltip(e, extractFeatureNumber(img), img);
         });
 
         img.addEventListener('mousemove', function (e) {
@@ -25,6 +24,18 @@ function applyEventListener(elements) {
         });
     });
 }
+
+function extractFeatureNumber(img) {
+    // Extract feature number from src
+    const match = img.id.match(/feature_(\d+)/);
+    const num = match ? match[1] : '?';
+    // Prepare feature object for tooltip
+    const feature = {
+        name: `Feature encoding #${num}`,
+        number: parseInt(num, 10) || 0 // Ensure it's a number
+    };
+    return feature;
+};
 
 function showEncodingTooltip(event, feature, img) {
     const scale = 4; // Scale factor for tooltip image size
@@ -50,4 +61,23 @@ function showEncodingTooltip(event, feature, img) {
     }
     tooltip.style.left = x + 'px';
     tooltip.style.top = y + 'px';
+}
+
+export function encodeClickEventListener(elements) {
+    console.log('Applying event listeners to encoding images');
+    console.log(elements);
+    elements.forEach(img => {
+        const num = extractFeatureNumber(img).number;
+        img.addEventListener('click', function (e) {
+            if(!nodeSelections.includes(num)) {
+                nodeSelections.push(num);
+                img.style.border = '2px solid red'; // Highlight selected image
+            } else {
+                const filtered = nodeSelections.filter(item => item !== num);
+                nodeSelections.length = 0; // Clear the array
+                nodeSelections.push(...filtered);
+                img.style.border = '2px solid white'; // Highlight selected image
+            }
+        });
+    });
 }

@@ -118,7 +118,7 @@ export async function displayEncodingSVGs() {
         img.src = `images/encodings/feature_${i}.svg`;
         img.id = `feature_${i}`;
         img.style.display = 'inline-block';
-        img.style.margin = '2px';
+        img.style.border = '2px solid white';
         img.width = 56;
         img.height = 56;
         groupContainer.appendChild(img);

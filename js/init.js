@@ -1,4 +1,5 @@
 import { displayEncodingSVGs } from './draw_weights.js';
+import { tooltipEventListener, encodeClickEventListener } from './interactions.js';
 
 console.log('Loading TensorFlow.js library...');
 
@@ -14,6 +15,8 @@ export const colourBar = [
   [255, 255, 0], // Yellow
 ];
 
+export let nodeSelections = [];
+
 console.log('Model loaded successfully:', model);
 console.log('Weights of layer 1:', weights1);
 console.log('Weights of layer 2:', weights2);
@@ -25,6 +28,8 @@ await displayEncodingSVGs().then(svgs => {
       document.getElementById('feature-spinner').setAttribute('style', 'display: none;');
       svgs.setAttribute('style', 'display: block;');
   });
-  applyEventListener(svgs.querySelectorAll('img'));
+  const imgs = svgs.querySelectorAll('img');
+  tooltipEventListener(imgs);
+  encodeClickEventListener(imgs);
   console.log('Encoding SVGs displayed successfully');
 });
