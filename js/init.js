@@ -1,3 +1,5 @@
+import { displayEncodingSVGs } from './draw_weights.js';
+
 console.log('Loading TensorFlow.js library...');
 
 const model = await tf.loadLayersModel('data/model_weights/model.json');
@@ -16,3 +18,12 @@ console.log('Model loaded successfully:', model);
 console.log('Weights of layer 1:', weights1);
 console.log('Weights of layer 2:', weights2);
 console.log('Colour bar:', colourBar);
+
+await displayEncodingSVGs().then(svgs => {
+  document.getElementById('encoding_features').appendChild(svgs);
+  new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
+      document.getElementById('feature-spinner').setAttribute('style', 'display: none;');
+      svgs.setAttribute('style', 'display: block;');
+  });
+  console.log('Encoding SVGs displayed successfully');
+});

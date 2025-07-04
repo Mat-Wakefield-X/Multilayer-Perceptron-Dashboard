@@ -13,10 +13,6 @@ function getColour(value) {
     const idx = Math.floor(scaled);
     const frac = scaled - idx;
 
-    if (frac === 0 || idx === n - 1) {
-        return colourBar[idx];
-    }
-
     // Interpolate between colourBar[idx] and colourBar[idx + 1]
     const c1 = colourBar[idx];
     const c2 = colourBar[idx + 1];
@@ -25,7 +21,20 @@ function getColour(value) {
         Math.round(lerp(c1[1], c2[1], frac)),
         Math.round(lerp(c1[2], c2[2], frac))
     ];
-    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+    return rgbToHex(rgb);
+}
+
+// Helper to convert [r,g,b] to hex string
+function rgbToHex(rgb) {
+    return (
+        "#" +
+        rgb
+            .map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? "0" + hex : hex;
+            })
+            .join("")
+    );
 }
 
 
@@ -34,34 +43,19 @@ function createWeightsImageGroup(id, size) {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "weights_image");
     group.setAttribute("id", `node-${id}`); // Set the ID for the group
+    group.setAttribute("stroke", "none");
 
     // Calculate border size
     const gridSize = 28 * size;
-    const borderSize = gridSize + 2;
-
-    // Create the border rectangle
-    const borderRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    borderRect.setAttribute("class", "weights_image_border");
-    borderRect.setAttribute("x", 0);
-    borderRect.setAttribute("y", 0);
-    borderRect.setAttribute("width", borderSize);
-    borderRect.setAttribute("height", borderSize);
-    borderRect.setAttribute("fill", "none");
-    borderRect.setAttribute("stroke", "black");
-    borderRect.setAttribute("stroke-width", "1");
-    group.appendChild(borderRect);
 
     // Create the 28x28 grid of cells
     for (let row = 0; row < 28; row++) {
         for (let col = 0; col < 28; col++) {
             const cell = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            cell.setAttribute("class", "cell");
-            cell.setAttribute("x", 1 + col * size);
-            cell.setAttribute("y", 1 + row * size);
+            cell.setAttribute("x", col * size);
+            cell.setAttribute("y", row * size);
             cell.setAttribute("width", size);
             cell.setAttribute("height", size);
-            cell.setAttribute("fill", "black");
-            cell.setAttribute("stroke", "none");
             group.appendChild(cell);
         }
     }
@@ -71,7 +65,7 @@ function createWeightsImageGroup(id, size) {
 
 function generateWeightsImage(id, size) {
     const group = createWeightsImageGroup(id, size);
-    const cells = group.querySelectorAll('.cell');
+    const cells = group.querySelectorAll('rect');
     for (let i = 0; i < 784; i++) {
         const value = weights1[i][id];
         const colour = getColour(value);
@@ -80,23 +74,9 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-export function generateEncodingImages() {
-    const svg = document.getElementById('features_svg');
-    const size = 2;
-    const imageSize = 28 * size + 2; // 58
-    const columns = 20;
-    for (let i = 0; i < 800; i++) {
-        const group = generateWeightsImage(i, size);
-        const col = i % columns;
-        const row = Math.floor(i / columns);
-        group.setAttribute('transform', `translate(${col * imageSize}, ${row * imageSize})`);
-        svg.appendChild(group);
-    }
-}
-
 export async function saveEncodingImages() {
     const size = 2;
-    const imageSize = 28 * size + 2; // 58
+    const imageSize = 28 * size;
     const columns = 20;
     const zip = new JSZip(); // Use global JSZip
 
@@ -129,13 +109,19 @@ export async function saveEncodingImages() {
     document.body.removeChild(a);
 }
 
-// const svg = document.querySelector('#inspect svg');
-// const image1 = generateWeightsImage(0, 5);
-// const image2 = generateWeightsImage(1, 5);
-// const image3 = generateWeightsImage(3, 5);
+export async function displayEncodingSVGs() {
+    const count = 800;
+    const groupContainer = document.createElement('div');
+    groupContainer.setAttribute('style', 'display: none;')
+    for (let i = 0; i < count; i++) {
+        const img = document.createElement('img');
+        img.src = `images/encodings/feature_${i}.svg`;
+        img.style.display = 'inline-block';
+        img.style.margin = '2px';
+        img.width = 56;
+        img.height = 56;
+        groupContainer.appendChild(img);
+    }
+    return groupContainer;
+}
 
-// image2.setAttribute('transform', 'translate(142, 0)'); // Move the second image to the right
-// image3.setAttribute('transform', 'translate(284, 0)'); // Move the third image down
-// svg.appendChild(image1);
-// svg.appendChild(image2);
-// svg.appendChild(image3);
