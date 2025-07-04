@@ -68,15 +68,53 @@ body {
     min-height: 300px;
     transition: box-shadow 0.2s;
     margin-bottom: 1rem;
+    flex-direction: row;
 }
 .section.active {
     display: block;
 }
 .subsection {
-    max-width: 160px;
-    border-radius: 1rem;
+    max-width: 170px;
+    border-radius: 0.5rem;
+    border-style: solid;
+    border-width: 1px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.07);
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    /* Add for side-by-side layout */
+    margin-right: 1.2rem;
+    margin-bottom: 0;
+    vertical-align: top;
+}
+
+/* Side-by-side .subsection inside #controls */
+#controls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+#controls .subsection:last-child {
+    margin-right: 0;
+}
+
+/* On mobile, stack subsections vertically */
+@media (max-width: 700px) {
+    #controls {
+        flex-direction: column;
+    }
+    .subsection {
+        margin-right: 0;
+        margin-bottom: 1rem;
+        max-width: none;
+        width: 100%;
+    }
 }
 .modern-btn {
     display: inline-block;
@@ -91,7 +129,7 @@ body {
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(79,140,255,0.08);
     transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-    margin-bottom: 1.2rem;
+    margin-top: 1.2rem;
 }
 .modern-btn:hover, .modern-btn:focus {
     background: linear-gradient(90deg, #235390 0%, #4f8cff 100%);
