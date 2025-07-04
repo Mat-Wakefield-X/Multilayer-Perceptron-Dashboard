@@ -94,6 +94,41 @@ export function generateEncodingImages() {
     }
 }
 
+export async function saveEncodingImages() {
+    const size = 2;
+    const imageSize = 28 * size + 2; // 58
+    const columns = 20;
+    const zip = new JSZip(); // Use global JSZip
+
+    for (let i = 0; i < 800; i++) {
+        const group = generateWeightsImage(i, size);
+
+        // Create a standalone SVG element for each image
+        const svgElem = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgElem.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        svgElem.setAttribute("width", imageSize);
+        svgElem.setAttribute("height", imageSize);
+        svgElem.setAttribute("viewBox", `0 0 ${imageSize} ${imageSize}`);
+        svgElem.appendChild(group);
+
+        // Serialize SVG
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svgElem);
+
+        // Add to zip
+        zip.file(`feature_${i}.svg`, svgString);
+    }
+
+    // Generate zip and trigger download
+    const content = await zip.generateAsync({ type: "blob" });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = "encoding_images.zip";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
 // const svg = document.querySelector('#inspect svg');
 // const image1 = generateWeightsImage(0, 5);
 // const image2 = generateWeightsImage(1, 5);
