@@ -6,8 +6,8 @@ tabBtns.forEach(btn => {
         // Remove active from all
         tabBtns.forEach(b => b.classList.remove('active'));
         sections.forEach(s => {
-            if (s.id !== 'controls' && s.id !== 'sym:section#Information.section.active') {
-            s.classList.remove('active');
+            if (s.id !== 'controls' && s.id !== 'information') {
+                s.classList.remove('active');
             }
         });
         // Add active to clicked

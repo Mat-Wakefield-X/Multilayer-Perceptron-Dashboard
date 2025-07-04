@@ -33,3 +33,4 @@ await displayEncodingSVGs().then(svgs => {
   encodeClickEventListener(imgs);
   console.log('Encoding SVGs displayed successfully');
 });
+

@@ -1,4 +1,4 @@
-import { weights1, weights2, colourBar } from './init.js';
+import { weights1, weights2, colourBar, nodeSelections } from './init.js';
 
 
 function lerp(a, b, t) {
@@ -15,7 +15,10 @@ function getColour(value) {
 
     // Interpolate between colourBar[idx] and colourBar[idx + 1]
     const c1 = colourBar[idx];
-    const c2 = colourBar[idx + 1];
+    let c2 = colourBar[idx + 1];
+    if (!c2) { 
+        c2 = colourBar[idx - 1];
+    }
     const rgb = [
         Math.round(lerp(c1[0], c2[0], frac)),
         Math.round(lerp(c1[1], c2[1], frac)),
@@ -42,7 +45,8 @@ function createWeightsImageGroup(id, size) {
     // Create the group element
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "weights_image");
-    group.setAttribute("id", `node-${id}`); // Set the ID for the group
+    const className = id === -1 ? "aggregate" : `node-${id}`;
+    group.setAttribute("id", className); // Set the ID for the group
     group.setAttribute("stroke", "none");
 
     // Calculate border size
@@ -72,6 +76,30 @@ function generateWeightsImage(id, size) {
         cells[i].setAttribute('fill', colour);
     }
     return group;
+}
+
+
+export function generateAggregateImage(size, svg){
+    svg.innerHTML = ''; // Clear previous content
+    const selectionSize = nodeSelections.length;
+    if(selectionSize !== 0) {
+        const group = createWeightsImageGroup(-1, size);
+        const cells = group.querySelectorAll('rect');
+        const values = Array.from({ length: 784 }, (_, i) => nodeSelections.reduce((sum, num) => sum + weights1[i][num], 0));
+        const max = Math.max(...values);
+        const min = Math.min(...values);
+        // Normalize values to range [-1, 1]
+        const normalized = values.map(v => {
+            if (max === min) return 0; // Avoid division by zero
+            return ((v - min) / (max - min)) * 2 - 1;
+        });
+        for (let i = 0; i < 784; i++) {
+            const value = normalized[i];
+            const colour = getColour(value);
+            cells[i].setAttribute('fill', colour);
+        }
+        svg.appendChild(group); // Append the new group
+    }
 }
 
 export async function saveEncodingImages() {

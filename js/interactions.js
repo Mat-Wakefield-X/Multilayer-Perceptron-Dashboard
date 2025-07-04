@@ -1,8 +1,8 @@
 import { nodeSelections } from "./init.js";
+import { generateAggregateImage } from "./draw_weights.js";
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
-    console.log(elements);
     elements.forEach(img => {
         img.addEventListener('mouseenter', function (e) {
             showEncodingTooltip(e, extractFeatureNumber(img), img);
@@ -63,21 +63,41 @@ function showEncodingTooltip(event, feature, img) {
     tooltip.style.top = y + 'px';
 }
 
+function highlightImage(img) {
+    if(img.classList.contains('selected')) {
+        img.style.border = '2px solid red'; // Highlight selected image
+    } else {
+        img.style.border = '2px solid white'; // Reset border for unselected images
+    }
+}
+
 export function encodeClickEventListener(elements) {
-    console.log('Applying event listeners to encoding images');
-    console.log(elements);
     elements.forEach(img => {
         const num = extractFeatureNumber(img).number;
         img.addEventListener('click', function (e) {
             if(!nodeSelections.includes(num)) {
                 nodeSelections.push(num);
-                img.style.border = '2px solid red'; // Highlight selected image
+                img.classList.add('selected'); // Add a class for styling
             } else {
                 const filtered = nodeSelections.filter(item => item !== num);
                 nodeSelections.length = 0; // Clear the array
                 nodeSelections.push(...filtered);
-                img.style.border = '2px solid white'; // Highlight selected image
+                img.classList.remove('selected'); // Remove the class
             }
+            highlightImage(img); // Update image border based on selection
+            generateAggregateImage(5, document.querySelector('#manual-svg')); // Regenerate aggregate image
         });
     });
 }
+
+function resetSelections() {
+    nodeSelections.length = 0; // Clear the array
+    generateAggregateImage(5, document.querySelector('#manual-svg')); // Regenerate aggregate image
+    const highlighted = document.querySelectorAll('.selected');
+    highlighted.forEach(img => {
+        img.classList.remove('selected'); // Remove the class
+        highlightImage(img); // Reset border for highlighted images
+    });
+}
+
+document.querySelector('.modern-btn').addEventListener('click', resetSelections);
