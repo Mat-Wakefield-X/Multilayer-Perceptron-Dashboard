@@ -10,18 +10,40 @@
     <header class="title-bar">
         <div class="title-bar-main">Multilayer Perceptron Inspection Dashboard</div>
         <nav class="tab-bar">
-            <button class="tab-btn" data-section="dashboard">Dashboard</button>
-            <button class="tab-btn active" data-section="inspect">Inspect</button>
+            <button class="tab-btn active" data-section="dashboard">Dashboard</button>
+            <button class="tab-btn" data-section="inspect">Inspect</button>
             <button class="tab-btn" data-section="info">Information</button>
         </nav>
     </header>
     <main class="main-content">
-        <section id="dashboard" class="section">
+        <section id="dashboard" class="section active">
             <!-- Dashboard content goes here -->
             <h2>Dashboard</h2>
             <p>Welcome to the Multilayer Perceptron Inspection Dashboard.</p>
+            <div id="input" class="dashboard-area">
+                <h3>Input Selection</h3>
+                <span id="input-spinner" class="spinner" style="display: inline-block;"></span>
+                <div id="input-data" style="display: none;">
+                    <label for="input-number-label" style="display: inline-block;">Input Label:</label>
+                    <span id="input-number-label" style="font-weight: bold; display: inline-block;"></span>
+                    <br/>
+                    <svg id="input-svg" width="112px" height="112px" viewbox="0 0 56 56" style="display: inline-block; border-style: solid; border-width: 1px;"></svg>
+                    <br/>
+                    <!-- <label for="input-number">Input Index:</label> -->
+                    <input id="input-number" type="number" min="1" max="10000" step="1" width="168px">
+                </div>
+            </div>
+            <div id="output" class="dashboard-area">
+                <h3>Network Output</h3>
+            </div>
+            <div id="decoded" class="dashboard-area">
+                <h3>Decoded Memory</h3>
+            </div>
+            <div id="histogram" class="dashboard-area">
+                <h3>Features Histogram</h3>
+            </div>
         </section>
-        <section id="inspect" class="section active">
+        <section id="inspect" class="section">
             <!-- Inspect content goes here -->
             <h2>Inspect</h2>
             <div id="encoding_features">
@@ -61,5 +83,6 @@
     <script type="module" src="js/init.js"></script>
     <script type="module" src="js/draw_weights.js"></script>
     <script type="module" src="js/interactions.js"></script>
+    <script type="module" src="js/mnist.js"></script>
 </body>
 </html>

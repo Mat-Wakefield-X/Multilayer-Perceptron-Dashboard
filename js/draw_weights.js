@@ -1,4 +1,5 @@
-import { weights1, weights2, colourBar, nodeSelections } from './init.js';
+import { weights1, weights2, colourBar, nodeSelections, mnistTestImagesBuffer } from './init.js';
+import { extractMnistImage, extractMnistLabel } from './mnist.js';
 
 
 function lerp(a, b, t) {
@@ -45,8 +46,7 @@ function createWeightsImageGroup(id, size) {
     // Create the group element
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("class", "weights_image");
-    const className = id === -1 ? "aggregate" : `node-${id}`;
-    group.setAttribute("id", className); // Set the ID for the group
+    group.setAttribute("id", id); // Set the ID for the group
     group.setAttribute("stroke", "none");
 
     // Calculate border size
@@ -68,7 +68,7 @@ function createWeightsImageGroup(id, size) {
 }
 
 function generateWeightsImage(id, size) {
-    const group = createWeightsImageGroup(id, size);
+    const group = createWeightsImageGroup(`node-${id}`, size);
     const cells = group.querySelectorAll('rect');
     for (let i = 0; i < 784; i++) {
         const value = weights1[i][id];
@@ -78,12 +78,11 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-
-export function generateAggregateImage(size, svg){
+export function generateAggregateImage(size, svg, id){
     svg.innerHTML = ''; // Clear previous content
     const selectionSize = nodeSelections.length;
     if(selectionSize !== 0) {
-        const group = createWeightsImageGroup(-1, size);
+        const group = createWeightsImageGroup(id, size);
         const cells = group.querySelectorAll('rect');
         const values = Array.from({ length: 784 }, (_, i) => nodeSelections.reduce((sum, num) => sum + weights1[i][num], 0));
         const max = Math.max(...values);
@@ -100,6 +99,26 @@ export function generateAggregateImage(size, svg){
         }
         svg.appendChild(group); // Append the new group
     }
+}
+
+export function drawInputImage(index, svg) {
+    svg.innerHTML = ''; // Clear previous content
+    const size = 2;
+    const imageSize = 28 * size;
+    const group = createWeightsImageGroup(`input-${index}`, size);
+    group.setAttribute("id", "input_image");
+
+    // Extract the MNIST image data
+    const mnistImage = extractMnistImage(mnistTestImagesBuffer, index);
+    const cells = group.querySelectorAll('rect');
+    
+    for (let i = 0; i < 784; i++) {
+        const value = (mnistImage[i] / 255) / 2.0; // Normalize to [0, 1]
+        const colour = getColour(value); // Convert to [-1, 1] range
+        cells[i].setAttribute('fill', colour);
+    }
+
+    svg.appendChild(group); // Append the new group
 }
 
 export async function saveEncodingImages() {
