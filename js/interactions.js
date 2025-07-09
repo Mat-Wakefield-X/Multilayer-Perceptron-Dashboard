@@ -102,6 +102,13 @@ function resetSelections() {
     });
 }
 
+function greenOpacityGradient(value) {
+    // Clamp value between 0 and 1
+    value = Math.max(0, Math.min(1, value));
+    // Return rgba for green with linear opacity
+    return `rgba(85, 170, 85, ${value})`;
+}
+
 document.querySelector('.modern-btn').addEventListener('click', resetSelections);
 
 document.querySelector('#input-number').addEventListener('change', function (e) {
@@ -117,8 +124,16 @@ document.querySelector('#input-number').addEventListener('change', function (e) 
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
-        console.log(`Predicted digit for image ${index + 1}:`, prediction);
-        console.log(`Activations for image ${index + 1}:`, activations);
-        return { prediction, activations }; 
+        document.querySelector('#output-prediction-label').innerText = prediction; // Update prediction display
+        for (const [i, value] of activations.entries()) {
+            const cell = document.querySelector(`#output-${i}`);
+            cell.innerText = value.toFixed(4); // Update activations display
+            cell.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
+            if(value > 0.5){
+                cell.style.color = 'white'; // Change text color for better contrast
+            } else {
+                cell.style.color = 'black'; // Reset text color for low values
+            }
+        }
     });
 });

@@ -23,18 +23,43 @@
             <div id="input" class="dashboard-area">
                 <h3>Input Selection</h3>
                 <span id="input-spinner" class="spinner" style="display: inline-block;"></span>
-                <div id="input-data" style="display: none;">
-                    <label for="input-number-label" style="display: inline-block;">Input Label:</label>
-                    <span id="input-number-label" style="font-weight: bold; display: inline-block;"></span>
-                    <br/>
-                    <svg id="input-svg" width="112px" height="112px" viewbox="0 0 56 56" style="display: inline-block; border-style: solid; border-width: 1px;"></svg>
-                    <br/>
-                    <!-- <label for="input-number">Input Index:</label> -->
-                    <input id="input-number" type="number" min="1" max="10000" step="1" width="168px">
+                <span style="display: inline-block;">Input Label:</span>
+                <span id="input-number-label" style="font-weight: bold; display: inline-block;"></span>
+                <div id="input-data" class="input-table" style="display: none;">
+                    <svg id="input-svg" class="input-cell" width="112px" height="112px" viewbox="0 0 56 56"></svg>
+                    <label class="input-cell" width="112px" style="font-weight: bold;">
+                        <input id="input-number" type="number" min="1" max="10000" step="1">
+                        Select Input
+                    </label>
                 </div>
             </div>
             <div id="output" class="dashboard-area">
                 <h3>Network Output</h3>
+                <span style="display: inline-block;">Prediction:</span>
+                <span id="output-prediction-label" style="font-weight: bold; display: inline-block;"></span>
+                <br/>
+                <div class="grid-table-output">
+                    <span id="output-0" class="value-cell"></span>
+                    <span id="output-1" class="value-cell"></span>
+                    <span id="output-2" class="value-cell"></span>
+                    <span id="output-3" class="value-cell"></span>
+                    <span id="output-4" class="value-cell"></span>
+                    <span id="output-5" class="value-cell"></span>
+                    <span id="output-6" class="value-cell"></span>
+                    <span id="output-7" class="value-cell"></span>
+                    <span id="output-8" class="value-cell"></span>
+                    <span id="output-9" class="value-cell"></span>
+                    <span class="label-cell">0</span>
+                    <span class="label-cell">1</span>
+                    <span class="label-cell">2</span>
+                    <span class="label-cell">3</span>
+                    <span class="label-cell">4</span>
+                    <span class="label-cell">5</span>
+                    <span class="label-cell">6</span>
+                    <span class="label-cell">7</span>
+                    <span class="label-cell">8</span>
+                    <span class="label-cell">9</span>
+                </div>
             </div>
             <div id="decoded" class="dashboard-area">
                 <h3>Decoded Memory</h3>

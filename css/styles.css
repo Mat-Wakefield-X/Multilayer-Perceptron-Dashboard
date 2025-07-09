@@ -348,3 +348,51 @@ body {
         width: 100%;
     }
 }
+
+.input-table{
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    /* margin-top: 0.5rem; */
+    margin-bottom: 1.2rem;
+    width: fit-content;
+}
+.input-cell {
+    display: grid;
+    justify-content: center; /* centers horizontally */
+    align-content: center;   /* centers vertically */
+    margin-top: 0.25rem;
+    margin-left: 0.25rem;
+}
+
+.grid-table-output {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    overflow: hidden;
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+.value-cell {
+    display: flex;
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+    border-top: 1px solid #333;
+    border-bottom: none;
+    padding: 8px;
+    justify-content: center; /* centers horizontally */
+    align-content: center;   /* centers vertically */
+}
+.label-cell {
+    font-weight: bolder;
+    display: flex;
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+    border-top: none;
+    border-bottom: 1px solid #333;
+    padding: 8px;
+    justify-content: center; /* centers horizontally */
+    align-content: center;   /* centers vertically */
+}
