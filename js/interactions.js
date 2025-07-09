@@ -124,7 +124,8 @@ document.querySelector('#input-number').addEventListener('change', function (e) 
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
-        document.querySelector('#output-prediction-label').innerText = prediction; // Update prediction display
+        const predictionLabel = `${prediction} ${(prediction === label) ? '✅' : '❌'}`;
+        document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
         for (const [i, value] of activations.entries()) {
             const cell = document.querySelector(`#output-${i}`);
             cell.innerText = value.toFixed(4); // Update activations display

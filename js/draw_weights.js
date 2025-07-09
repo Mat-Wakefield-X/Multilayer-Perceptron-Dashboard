@@ -168,6 +168,7 @@ export async function displayEncodingSVGs() {
         img.style.border = '2px solid white';
         img.width = 56;
         img.height = 56;
+        img.alt = `Network Feature Encoding #${i}`;
         groupContainer.appendChild(img);
     }
     return groupContainer;
