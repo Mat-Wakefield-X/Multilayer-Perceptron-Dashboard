@@ -113,7 +113,7 @@ export function drawInputImage(index, svg) {
     const cells = group.querySelectorAll('rect');
     
     for (let i = 0; i < 784; i++) {
-        const value = (mnistImage[i] / 255) / 2.0; // Normalize to [0, 1]
+        const value = mnistImage[i] / 2.0; // Normalize to [0, 1]
         const colour = getColour(value); // Convert to [-1, 1] range
         cells[i].setAttribute('fill', colour);
     }

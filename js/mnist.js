@@ -15,7 +15,7 @@ export function extractMnistImage(buffer, index) {
     const imageSize = numRows * numCols;
     const start = 16 + index * imageSize;
     const data = new Uint8Array(buffer, start, imageSize);
-    return Array.from(data);
+    return Array.from(data, value => value / 255); // Convert Uint8Array to regular array
 }
 
 /**

@@ -1,6 +1,7 @@
 import { nodeSelections, mnistTestLabelsBuffer } from "./init.js";
 import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
 import { extractMnistLabel } from "./mnist.js";
+import { runMNISTInference } from "./run_model.js";
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -115,4 +116,9 @@ document.querySelector('#input-number').addEventListener('change', function (e) 
     drawInputImage(index, svg); // Regenerate input image
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
+    runMNISTInference(index).then(({ prediction, activations }) => { 
+        console.log(`Predicted digit for image ${index + 1}:`, prediction);
+        console.log(`Activations for image ${index + 1}:`, activations);
+        return { prediction, activations }; 
+    });
 });

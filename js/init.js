@@ -4,7 +4,7 @@ import { extractMnistLabel, getNumMnistImages } from './mnist.js';
 
 console.log('Loading TensorFlow.js library...');
 
-const model = await tf.loadLayersModel('data/model_weights/model.json');
+export const model = await tf.loadLayersModel('data/model_weights/model.json');
 export const weights1 = await model.layers[0].getWeights()[0].array();
 export const weights2 = await model.layers[1].getWeights()[0].array();
 
