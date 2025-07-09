@@ -78,13 +78,17 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-export function generateAggregateImage(size, svg, id){
+export function generateAggregateImage(size, svg, id, selections = nodeSelections, activations = null) {
     svg.innerHTML = ''; // Clear previous content
-    const selectionSize = nodeSelections.length;
+    const selectionSize = selections.length;
     if(selectionSize !== 0) {
         const group = createWeightsImageGroup(id, size);
         const cells = group.querySelectorAll('rect');
-        const values = Array.from({ length: 784 }, (_, i) => nodeSelections.reduce((sum, num) => sum + weights1[i][num], 0));
+        const values = Array.from({ length: 784 }, (_, i) => 
+            selections.reduce((sum, num) => 
+                sum + (activations ? activations[i] * weights1[i][num] : weights1[i][num]), 
+                    0)
+                );
         const max = Math.max(...values);
         const min = Math.min(...values);
         // Normalize values to range [-1, 1]

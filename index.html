@@ -39,30 +39,91 @@
                 <span id="output-prediction-label" style="font-weight: bold; display: inline-block;"></span>
                 <br/>
                 <div class="grid-table-output">
-                    <span id="output-0" class="value-cell"></span>
-                    <span id="output-1" class="value-cell"></span>
-                    <span id="output-2" class="value-cell"></span>
-                    <span id="output-3" class="value-cell"></span>
-                    <span id="output-4" class="value-cell"></span>
-                    <span id="output-5" class="value-cell"></span>
-                    <span id="output-6" class="value-cell"></span>
-                    <span id="output-7" class="value-cell"></span>
-                    <span id="output-8" class="value-cell"></span>
-                    <span id="output-9" class="value-cell"></span>
-                    <span class="label-cell">0</span>
-                    <span class="label-cell">1</span>
-                    <span class="label-cell">2</span>
-                    <span class="label-cell">3</span>
-                    <span class="label-cell">4</span>
-                    <span class="label-cell">5</span>
-                    <span class="label-cell">6</span>
-                    <span class="label-cell">7</span>
-                    <span class="label-cell">8</span>
-                    <span class="label-cell">9</span>
+                    <span id="output-0" class="top-cell"></span>
+                    <span id="output-1" class="top-cell"></span>
+                    <span id="output-2" class="top-cell"></span>
+                    <span id="output-3" class="top-cell"></span>
+                    <span id="output-4" class="top-cell"></span>
+                    <span id="output-5" class="top-cell"></span>
+                    <span id="output-6" class="top-cell"></span>
+                    <span id="output-7" class="top-cell"></span>
+                    <span id="output-8" class="top-cell"></span>
+                    <span id="output-9" class="top-cell"></span>
+                    <span class="middle-cell">0</span>
+                    <span class="middle-cell">1</span>
+                    <span class="middle-cell">2</span>
+                    <span class="middle-cell">3</span>
+                    <span class="middle-cell">4</span>
+                    <span class="middle-cell">5</span>
+                    <span class="middle-cell">6</span>
+                    <span class="middle-cell">7</span>
+                    <span class="middle-cell">8</span>
+                    <span class="middle-cell">9</span>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-0" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-1" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-2" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-3" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-4" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-5" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-6" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-7" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-8" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="bottom-cell">
+                        <label class="switch">
+                            <input type="checkbox" id="show-activations-9" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
             <div id="decoded" class="dashboard-area">
                 <h3>Decoded Memory</h3>
+                <svg id="decoded-svg" width="112px" height="112px" viewbox="0 0 56 56"></svg>
             </div>
             <div id="histogram" class="dashboard-area">
                 <h3>Features Histogram</h3>

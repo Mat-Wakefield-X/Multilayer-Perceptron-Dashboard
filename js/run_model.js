@@ -13,17 +13,19 @@ export async function runMNISTInference(index) {
   // Reshape image to match model input (usually [1, 784] for MLP)
   const inputTensor = tf.tensor(imageArray, [1, 784]);
 
-  // Run inference
-  const outputTensor = model.predict(inputTensor);
+  let currentOutput = inputTensor;
+  const activations = [];
 
-  // Get activation values as array
-  const activations = outputTensor.dataSync();  // Returns Float32Array
+  model.layers.forEach(layer => {
+    currentOutput = layer.apply(currentOutput);
+    activations.push(currentOutput.dataSync()); // Get activations for each layer
+  });
 
   // Find the predicted digit (index of max activation)
-  const prediction = activations.indexOf(Math.max(...activations));
+  const prediction = activations[1].indexOf(Math.max(...activations));
 
   // Clean up tensors
-  tf.dispose([inputTensor, outputTensor]);
+  tf.dispose(inputTensor);
 
   return {
     prediction,
