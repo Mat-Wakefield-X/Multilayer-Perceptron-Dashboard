@@ -126,6 +126,7 @@ function runPrediction(e) {
     runMNISTInference(index).then(({ prediction, activations }) => { 
         modelActivations = activations; // Store activations globally
         updatePredictionDisplay(label, prediction, activations);
+        shiftToggles(activations[1]); // Update toggle states based on activations
         generateTopDown(activations);
     });
 }
@@ -143,6 +144,14 @@ function updatePredictionDisplay(label, prediction, activations) {
             cell.style.color = 'black'; // Reset text color for low values
         }
     }
+}
+
+function shiftToggles(activations) {
+    const toggles = document.querySelectorAll('.top-down-toggle');
+    toggles.forEach((toggle, i) => {
+        const value = activations[i];
+        toggle.checked = value >= 0.0001; // Check if activation is above threshold
+    });
 }
 
 function greenOpacityGradient(value) {
@@ -172,7 +181,7 @@ function generateTopDown() {
         .filter(idx => idx !== -1);
     generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', negativeSelections, modulated);
     const allSelections = modulated
-        .map((value, idx) => value < 0 ? idx : -1)
+        .map((value, idx) => value != 0 ? idx : -1)
         .filter(idx => idx !== -1);
     generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', allSelections, modulated, false);
 }
