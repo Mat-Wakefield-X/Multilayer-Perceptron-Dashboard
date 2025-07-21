@@ -124,7 +124,6 @@ document.querySelector('#input-number').addEventListener('change', function (e) 
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
-        console.log("Layer Activations: ", activations);
         const predictionLabel = `${prediction} ${(prediction === label) ? '✅' : '❌'}`;
         document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
         for (const [i, value] of activations[1].entries()) {

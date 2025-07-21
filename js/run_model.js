@@ -22,7 +22,7 @@ export async function runMNISTInference(index) {
   });
 
   // Find the predicted digit (index of max activation)
-  const prediction = activations[1].indexOf(Math.max(...activations));
+  const prediction = activations[1].indexOf(Math.max(...activations[1]));
 
   // Clean up tensors
   tf.dispose(inputTensor);
