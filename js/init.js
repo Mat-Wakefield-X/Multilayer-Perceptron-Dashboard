@@ -17,7 +17,6 @@ export const colourBar = [
 ];
 
 export let nodeSelections = [];
-export let mnistData = null;
 
 // --- MNIST IDX file loading from /data ---
 export const mnistTestImagesBuffer = await fetchArrayBufferLocal('data/t10k-images.idx3-ubyte').then((data) => {

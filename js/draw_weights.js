@@ -78,7 +78,7 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-export function generateAggregateImage(size, svg, id, selections = nodeSelections, activations = null) {
+export function generateAggregateImage(size, svg, id, selections = nodeSelections, activations = null, abs = true) {
     svg.innerHTML = ''; // Clear previous content
     const selectionSize = selections.length;
     if(selectionSize !== 0) {
@@ -86,9 +86,7 @@ export function generateAggregateImage(size, svg, id, selections = nodeSelection
         const cells = group.querySelectorAll('rect');
         const values = Array.from({ length: 784 }, (_, i) => 
             selections.reduce((sum, num) => 
-                sum + (activations ? activations[i] * weights1[i][num] : weights1[i][num]), 
-                    0)
-                );
+                sum + getFeatureValue(i, num, activations, abs), 0));
         const max = Math.max(...values);
         const min = Math.min(...values);
         // Normalize values to range [-1, 1]
@@ -103,6 +101,14 @@ export function generateAggregateImage(size, svg, id, selections = nodeSelection
         }
         svg.appendChild(group); // Append the new group
     }
+}
+
+function getFeatureValue(i, num, activations, abs) {
+    let value = weights1[i][num];
+    if (activations) {
+        value *= abs ? Math.abs(activations[num]) : activations[num];
+    }
+    return value;
 }
 
 export function drawInputImage(index, svg) {

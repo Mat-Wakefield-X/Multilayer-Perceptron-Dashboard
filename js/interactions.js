@@ -1,7 +1,9 @@
-import { nodeSelections, mnistTestLabelsBuffer } from "./init.js";
+import { nodeSelections, mnistTestLabelsBuffer, weights2 } from "./init.js";
 import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
 import { extractMnistLabel } from "./mnist.js";
 import { runMNISTInference } from "./run_model.js";
+
+let modelActivations = null;
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -65,14 +67,6 @@ function showEncodingTooltip(event, feature, img) {
     tooltip.style.top = y + 'px';
 }
 
-function highlightImage(img) {
-    if(img.classList.contains('selected')) {
-        img.style.border = '2px solid red'; // Highlight selected image
-    } else {
-        img.style.border = '2px solid white'; // Reset border for unselected images
-    }
-}
-
 export function encodeClickEventListener(elements) {
     elements.forEach(img => {
         const num = extractFeatureNumber(img).number;
@@ -92,6 +86,16 @@ export function encodeClickEventListener(elements) {
     });
 }
 
+function highlightImage(img) {
+    if(img.classList.contains('selected')) {
+        img.style.border = '2px solid red'; // Highlight selected image
+    } else {
+        img.style.border = '2px solid white'; // Reset border for unselected images
+    }
+}
+
+document.querySelector('.modern-btn').addEventListener('click', resetSelections);
+
 function resetSelections() {
     nodeSelections.length = 0; // Clear the array
     generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate'); // Regenerate aggregate image
@@ -102,16 +106,12 @@ function resetSelections() {
     });
 }
 
-function greenOpacityGradient(value) {
-    // Clamp value between 0 and 1
-    value = Math.max(0, Math.min(1, value));
-    // Return rgba for green with linear opacity
-    return `rgba(85, 170, 85, ${value})`;
-}
+document.querySelector('#input-number').addEventListener('change', runPrediction);
+document.querySelectorAll('.top-down-toggle').forEach(toggle => {
+    toggle.addEventListener('change', generateTopDown); 
+});
 
-document.querySelector('.modern-btn').addEventListener('click', resetSelections);
-
-document.querySelector('#input-number').addEventListener('change', function (e) {
+function runPrediction(e) {
     let index = parseInt(e.target.value, 10);
     if (isNaN(index) || index < 1 || index > 10000) {
         index = Math.max(1, Math.min(10000, parseInt(e.target.value, 10) || 1));
@@ -124,17 +124,55 @@ document.querySelector('#input-number').addEventListener('change', function (e) 
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
-        const predictionLabel = `${prediction} ${(prediction === label) ? '✅' : '❌'}`;
-        document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
-        for (const [i, value] of activations[1].entries()) {
-            const cell = document.querySelector(`#output-${i}`);
-            cell.innerText = value.toFixed(4); // Update activations display
-            cell.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
-            if(value > 0.5){
-                cell.style.color = 'white'; // Change text color for better contrast
-            } else {
-                cell.style.color = 'black'; // Reset text color for low values
-            }
-        }
+        modelActivations = activations; // Store activations globally
+        updatePredictionDisplay(label, prediction, activations);
+        generateTopDown(activations);
     });
-});
+}
+
+function updatePredictionDisplay(label, prediction, activations) {
+    const predictionLabel = `${prediction} ${(prediction === label) ? '✅' : '❌'}`;
+    document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
+    for (const [i, value] of activations[1].entries()) {
+        const cell = document.querySelector(`#output-${i}`);
+        cell.innerText = value.toFixed(4); // Update activations display
+        cell.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
+        if(value > 0.5){
+            cell.style.color = 'white'; // Change text color for better contrast
+        } else {
+            cell.style.color = 'black'; // Reset text color for low values
+        }
+    }
+}
+
+function greenOpacityGradient(value) {
+    // Clamp value between 0 and 1
+    value = Math.max(0, Math.min(1, value));
+    value = (value >= 0.0001) ? (value * 0.5) + 0.5 : 0; // Scale to 0.5 to 1 range for opacity
+    // Return rgba for green with linear opacity
+    return `rgba(85, 170, 85, ${value})`;
+}
+
+function generateTopDown() {
+    const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
+    // Determine modulation values for encoding features based on selected outputs.
+    const modulations = checkedStates.map((checked, i) => {
+        const select = checked ? 1 : 0;
+        const y = modelActivations[1][i];
+        return weights2.map((feature) => feature[i] * select * y);
+    }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));
+    // Determine modulated activations for the first layer.
+    const modulated = modelActivations[0].map((val, idx) => val * modulations[idx]);
+    const positiveSelections = modulated
+        .map((value, idx) => value > 0 ? idx : -1)
+        .filter(idx => idx !== -1);
+    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', positiveSelections, modulated);
+    const negativeSelections = modulated
+        .map((value, idx) => value < 0 ? idx : -1)
+        .filter(idx => idx !== -1);
+    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', negativeSelections, modulated);
+    const allSelections = modulated
+        .map((value, idx) => value < 0 ? idx : -1)
+        .filter(idx => idx !== -1);
+    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', allSelections, modulated, false);
+}
