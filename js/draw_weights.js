@@ -100,9 +100,24 @@ export function generateAggregateImage(size, svg, id, data = null, globalNorms =
     }
 }
 
-export function drawInputImage(input, svg) {
+export function drawInputImage(input, size, svg) {
     svg.innerHTML = ''; // Clear previous content
-    const size = 2;
+    const group = generateInputSVG(input, size);
+    svg.appendChild(group); // Append the new group
+}
+
+export function drawInstancesGroup(inputs, size, svg) {
+    svg.innerHTML = ''; // Clear previous content
+    const groups = inputs.map(input => generateInputSVG(input, size));
+    groups.forEach((group, i) => {
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        group.setAttribute('transform', `translate(${col * size * 28}, ${row * size * 28})`);
+        svg.appendChild(group);
+    });
+}
+
+function generateInputSVG(input, size){
     const imageSize = 28 * size;
     const group = createWeightsImageGroup(`input-${input.index + 1}`, size);
     group.setAttribute("id", "input_image");
@@ -115,8 +130,7 @@ export function drawInputImage(input, svg) {
         const colour = getColour(value); // Convert to [-1, 1] range
         cells[i].setAttribute('fill', colour);
     }
-
-    svg.appendChild(group); // Append the new group
+    return group;
 }
 
 export async function saveEncodingImages() {

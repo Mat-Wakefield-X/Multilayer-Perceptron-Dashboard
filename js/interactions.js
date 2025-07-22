@@ -1,7 +1,6 @@
-import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance } from "./init.js";
-import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
-import { generateImage } from "./generate_images.js";
-import { extractMnistLabel } from "./mnist.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance } from "./init.js";
+import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
+import { generateImage, getMaxSimilarity } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
 
 /*
@@ -130,6 +129,7 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
         generateTopDown();
         drawDecodings();
         drawInputSaliency();
+        drawMaxSimilarity();
     }); 
 });
 
@@ -144,7 +144,7 @@ function runPrediction(e) {
     const input = getInstance();
 
     const svg = document.querySelector('#input-svg');
-    drawInputImage(input, svg); // Regenerate input image
+    drawInputImage(input, 2, svg); // Regenerate input image
 
     document.getElementById('input-number-label').innerText = input.label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
@@ -154,6 +154,7 @@ function runPrediction(e) {
         generateTopDown(activations);
         drawDecodings();
         drawInputSaliency();
+        drawMaxSimilarity();
     });
 }
 
@@ -266,8 +267,19 @@ function drawInputSaliency() {
         min: decoding.min,
         max: decoding.max
     }));
-    console.log("Saliencies:", saliencies);
     generateAggregateImage(5, document.querySelector('#saliency-positive-svg'), 'positive-saliency', saliencies[0], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-negative-svg'), 'negative-saliency', saliencies[1], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
+}
+
+function drawMaxSimilarity() {
+    const decodings = decodingsAccessor();
+
+    const positive = getMaxSimilarity(decodings[0], 4);
+    const negative = getMaxSimilarity(decodings[1], 4);
+    const hyperplane = getMaxSimilarity(decodings[2], 4);
+
+    drawInstancesGroup(positive, 2, document.querySelector("#max-positive-svg"));
+    drawInstancesGroup(negative, 2, document.querySelector("#max-negative-svg"));
+    drawInstancesGroup(hyperplane, 2, document.querySelector("#max-hyperplane-svg"));
 }

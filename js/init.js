@@ -41,6 +41,10 @@ export const mnistTestImagesBuffer = await fetchArrayBufferLocal('data/t10k-imag
 });
 export const mnistTestLabelsBuffer = await fetchArrayBufferLocal('data/t10k-labels.idx1-ubyte');
 
+export const mnistTrainImagesBuffer = await fetchArrayBufferLocal('data/train-images.idx3-ubyte');
+export const mnistTrainLabelsBuffer = await fetchArrayBufferLocal('data/train-labels.idx1-ubyte');
+export const mnistTrainSize = getNumMnistImages(mnistTrainImagesBuffer);
+
 document.querySelector("#input-number").dispatchEvent(new Event('change')); // Trigger change event to initialize input image
 
 console.log('Model loaded successfully:', model);
