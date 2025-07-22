@@ -38,7 +38,7 @@
                 <span style="display: inline-block;">Prediction:</span>
                 <span id="output-prediction-label" style="font-weight: bold; display: inline-block;"></span>
                 <br/>
-                <div class="grid-table-output">
+                <div class="grid-table-output-10">
                     <span id="output-0" class="top-cell"></span>
                     <span id="output-1" class="top-cell"></span>
                     <span id="output-2" class="top-cell"></span>
@@ -132,9 +132,20 @@
                     </label>
                     <span>Global</span>
                 </div>
-                <svg id="decoded-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
-                <svg id="decoded-negative-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
-                <svg id="decoded-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                <div class="grid-table-output-3">
+                    <span class="top-cell">
+                        <svg id="decoded-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="top-cell">
+                        <svg id="decoded-negative-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="top-cell">
+                        <svg id="decoded-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="bottom-cell" style="font-weight: bold;">Positive</span>
+                    <span class="bottom-cell" style="font-weight: bold;">Negative</span>
+                    <span class="bottom-cell" style="font-weight: bold;">Hyperplane</span>
+                </div>
             </div>
             <div id="histogram" class="dashboard-area">
                 <h3>Features Histogram</h3>

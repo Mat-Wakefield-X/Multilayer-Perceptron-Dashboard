@@ -367,9 +367,17 @@ body {
     margin-left: 0.25rem;
 }
 
-.grid-table-output {
-    display: grid;
+.grid-table-output-10 {
+    display: inline-grid;
     grid-template-columns: repeat(10, 1fr);
+    gap: 0;
+    overflow: hidden;
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+}
+.grid-table-output-3 {
+    display: inline-grid;
+    grid-template-columns: repeat(3, auto);
     gap: 0;
     overflow: hidden;
     margin-top: 1.2rem;
@@ -411,7 +419,6 @@ body {
   align-items: center;
   gap: 0.5em; /* Optional spacing between items */
   font-family: sans-serif;
-  margin-bottom: 1.2rem;
 }
 .switch {
   position: relative;
