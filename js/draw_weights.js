@@ -1,6 +1,5 @@
-import { weights1, weights2, colourBar, nodeSelections, mnistTestImagesBuffer } from './init.js';
-import { extractMnistImage, extractMnistLabel } from './mnist.js';
-
+import { weights1, colourBar, mnistTestImagesBuffer, normsMinAccessor, normsMaxAccessor } from './init.js';
+import { extractMnistImage } from './mnist.js';
 
 function lerp(a, b, t) {
     return a + (b - a) * t;
@@ -78,19 +77,15 @@ function generateWeightsImage(id, size) {
     return group;
 }
 
-export function generateAggregateImage(size, svg, id, selections = nodeSelections, activations = null, abs = true) {
+export function generateAggregateImage(size, svg, id, data = null, globalNorms = false) {
     svg.innerHTML = ''; // Clear previous content
-    const selectionSize = selections.length;
-    if(selectionSize !== 0) {
+    if(data) {
         const group = createWeightsImageGroup(id, size);
         const cells = group.querySelectorAll('rect');
-        const values = Array.from({ length: 784 }, (_, i) => 
-            selections.reduce((sum, num) => 
-                sum + getFeatureValue(i, num, activations, abs), 0));
-        const max = Math.max(...values);
-        const min = Math.min(...values);
         // Normalize values to range [-1, 1]
-        const normalized = values.map(v => {
+        const min = globalNorms ? normsMinAccessor() : data.min;
+        const max = globalNorms ? normsMaxAccessor() : data.max;
+        const normalized = data.image.map(v => {
             if (max === min) return 0; // Avoid division by zero
             return ((v - min) / (max - min)) * 2 - 1;
         });
@@ -101,14 +96,6 @@ export function generateAggregateImage(size, svg, id, selections = nodeSelection
         }
         svg.appendChild(group); // Append the new group
     }
-}
-
-function getFeatureValue(i, num, activations, abs) {
-    let value = weights1[i][num];
-    if (activations) {
-        value *= abs ? Math.abs(activations[num]) : activations[num];
-    }
-    return value;
 }
 
 export function drawInputImage(index, svg) {

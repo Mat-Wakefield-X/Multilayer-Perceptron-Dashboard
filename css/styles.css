@@ -406,6 +406,13 @@ body {
     justify-content: center; /* centers horizontally */
     align-content: center;   /* centers vertically */
 }
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5em; /* Optional spacing between items */
+  font-family: sans-serif;
+  margin-bottom: 1.2rem;
+}
 .switch {
   position: relative;
   display: grid;

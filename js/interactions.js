@@ -1,9 +1,8 @@
-import { nodeSelections, mnistTestLabelsBuffer, weights2 } from "./init.js";
+import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
+import { generateImage } from "./generate_images.js";
 import { extractMnistLabel } from "./mnist.js";
 import { runMNISTInference } from "./run_model.js";
-
-let modelActivations = null;
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -81,7 +80,8 @@ export function encodeClickEventListener(elements) {
                 img.classList.remove('selected'); // Remove the class
             }
             highlightImage(img); // Update image border based on selection
-            generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate'); // Regenerate aggregate image
+            const data = generateImage(nodeSelections)
+            generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
         });
     });
 }
@@ -106,6 +106,11 @@ function resetSelections() {
     });
 }
 
+document.querySelector('#norms-toggle').addEventListener('change', function (e) {
+    normsToggleAccessor(e.target.checked); // Update norms accessor based on toggle state
+    generateTopDown();
+});
+
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     toggle.addEventListener('change', generateTopDown); 
@@ -124,7 +129,7 @@ function runPrediction(e) {
     const label = extractMnistLabel(mnistTestLabelsBuffer, index);
     document.getElementById('input-number-label').innerText = label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
-        modelActivations = activations; // Store activations globally
+        activationsAccessor(activations); // Store activations globally
         updatePredictionDisplay(label, prediction, activations);
         shiftToggles(activations[1]); // Update toggle states based on activations
         generateTopDown(activations);
@@ -163,25 +168,66 @@ function greenOpacityGradient(value) {
 }
 
 function generateTopDown() {
+    // Determine modulated activations for the first layer.
+    const modulations = getModulations();
+    const modulated = activationsAccessor()[0].map((val, idx) => val * modulations[idx]);
+
+    // Generate aggregate images based on positive, negative, and all selections.
+    const positiveSelections = getSelections(modulated, true);
+    const positiveData = generateImage(positiveSelections, modulated);
+
+    const negativeSelections = getSelections(modulated, false);
+    const negativeData = generateImage(negativeSelections, modulated);
+
+    const allSelections = getSelections(modulated, null);
+    const allData = generateImage(allSelections, modulated, false);
+
+    const useGlobalNorms = normsToggleAccessor();
+    if(useGlobalNorms) {
+        setGlobalNorms([positiveData, negativeData, allData]);
+    }
+    
+    // Update aggregate images in the UI.
+    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', positiveData, useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', negativeData, useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', allData, useGlobalNorms);
+}
+
+function getModulations() {
     const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
     // Determine modulation values for encoding features based on selected outputs.
-    const modulations = checkedStates.map((checked, i) => {
+    const modelActivations = activationsAccessor();
+    return checkedStates.map((checked, i) => {
         const select = checked ? 1 : 0;
         const y = modelActivations[1][i];
+        // const y = 1;
         return weights2.map((feature) => feature[i] * select * y);
     }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));
-    // Determine modulated activations for the first layer.
-    const modulated = modelActivations[0].map((val, idx) => val * modulations[idx]);
-    const positiveSelections = modulated
-        .map((value, idx) => value > 0 ? idx : -1)
+}
+
+function getSelections(modulated, positive){
+    let condition = null;
+    switch (positive){
+        case true:
+            condition = (value) => value > 0;
+            break;
+        case false:
+            condition = (value) => value < 0;
+            break;
+        default:
+            condition = (value) => value !== 0;
+    }
+    return modulated
+        .map((value, idx) => condition(value) ? idx : -1)
         .filter(idx => idx !== -1);
-    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', positiveSelections, modulated);
-    const negativeSelections = modulated
-        .map((value, idx) => value < 0 ? idx : -1)
-        .filter(idx => idx !== -1);
-    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', negativeSelections, modulated);
-    const allSelections = modulated
-        .map((value, idx) => value != 0 ? idx : -1)
-        .filter(idx => idx !== -1);
-    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', allSelections, modulated, false);
+}
+
+function setGlobalNorms(images) {
+    const globalNorms = normsToggleAccessor();
+    if (globalNorms) {
+        const max = Math.max(...images.map(img => img.max));
+        const min = Math.min(...images.map(img => img.min));
+        normsMaxAccessor(max);
+        normsMinAccessor(min);
+    }
 }

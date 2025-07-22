@@ -17,6 +17,12 @@ export const colourBar = [
 ];
 
 export let nodeSelections = [];
+export let modelActivations = null;
+export let globalNorms = {
+  set: true,
+  min: -1,
+  max: 1
+}; // Default to global norms
 
 // --- MNIST IDX file loading from /data ---
 export const mnistTestImagesBuffer = await fetchArrayBufferLocal('data/t10k-images.idx3-ubyte').then((data) => {
@@ -54,3 +60,34 @@ await displayEncodingSVGs().then(svgs => {
   console.log('Encoding SVGs displayed successfully');
 });
 
+export function activationsAccessor(activations) {
+  if (activations !== undefined) {
+    modelActivations = activations;
+  } else {
+    return modelActivations;
+  }
+}
+
+export function normsToggleAccessor(norms) {
+  if (norms !== undefined) {
+    globalNorms.set = norms;
+  } else {
+    return globalNorms.set;
+  }
+}
+
+export function normsMaxAccessor(max){
+  if(max !== undefined) {
+    globalNorms.max = max;
+  } else {
+    return globalNorms.max;
+  }
+}
+
+export function normsMinAccessor(min){
+  if(min !== undefined) {
+    globalNorms.min = min;
+  } else {
+    return globalNorms.min;
+  }
+}

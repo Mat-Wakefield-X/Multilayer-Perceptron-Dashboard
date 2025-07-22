@@ -123,6 +123,15 @@
             </div>
             <div id="decoded" class="dashboard-area">
                 <h3>Decoded Memory</h3>
+                <div class="switch-container">
+                    <span style="font-weight: bold;">Normalisation: </span>
+                    <span>Local</span>
+                    <label class="switch">
+                        <input type="checkbox" id="norms-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <span>Global</span>
+                </div>
                 <svg id="decoded-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                 <svg id="decoded-negative-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                 <svg id="decoded-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
@@ -173,5 +182,6 @@
     <script type="module" src="js/interactions.js"></script>
     <script type="module" src="js/mnist.js"></script>
     <script type="module" src="js/run_model.js"></script>
+    <script type="module" src="js/generate_images.js"></script>
 </body>
 </html>
