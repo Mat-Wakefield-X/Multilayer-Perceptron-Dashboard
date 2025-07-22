@@ -125,13 +125,26 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
 
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
-    toggle.addEventListener('change', function (e) {
-        generateTopDown();
-        drawDecodings();
-        drawInputSaliency();
-        drawMaxSimilarity();
-    }); 
+    toggle.addEventListener('change', handleToggleChange); 
 });
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function handleToggleChange() {
+    await sleep(300); // allow animation to kick in
+    generateTopDown();
+
+    await sleep(0);
+    drawDecodings();
+
+    await sleep(0);
+    drawInputSaliency();
+
+    await drawMaxSimilarity();
+}
+
 
 function runPrediction(e) {
     let index = parseInt(e.target.value, 10);
@@ -272,14 +285,39 @@ function drawInputSaliency() {
     generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
 }
 
-function drawMaxSimilarity() {
-    const decodings = decodingsAccessor();
+async function drawMaxSimilarity() {
+    // Select and clear svgs
+    const svgs = document.querySelectorAll('[id^="max-"][id$="-svg"]');
+    svgs.forEach(svg => {
+        svg.innerHTML = '';
+        svg.style.display = 'none';
+    });
+    
+    // Show loading spinners
+    document.querySelectorAll(".spinner.max-sim").forEach(spinner => {
+        spinner.style.display = "block";
+    });
 
-    const positive = getMaxSimilarity(decodings[0], 4);
-    const negative = getMaxSimilarity(decodings[1], 4);
-    const hyperplane = getMaxSimilarity(decodings[2], 4);
+    await new Promise(resolve => setTimeout(() => {
+        const decodings = decodingsAccessor();
 
-    drawInstancesGroup(positive, 2, document.querySelector("#max-positive-svg"));
-    drawInstancesGroup(negative, 2, document.querySelector("#max-negative-svg"));
-    drawInstancesGroup(hyperplane, 2, document.querySelector("#max-hyperplane-svg"));
+        const positive = getMaxSimilarity(decodings[0], 6);
+        const negative = getMaxSimilarity(decodings[1], 6);
+        const hyperplane = getMaxSimilarity(decodings[2], 6);
+
+        drawInstancesGroup(positive, 2, svgs[0]);
+        drawInstancesGroup(negative, 2, svgs[1]);
+        drawInstancesGroup(hyperplane, 2, svgs[2]);
+
+        // Hide loading spinners
+        document.querySelectorAll(".spinner.max-sim").forEach(spinner => {
+            spinner.style.display = "none";
+        });
+
+        svgs.forEach(svg => {
+            svg.style.display = 'block';
+        });
+
+        resolve();
+    }, 0));
 }
