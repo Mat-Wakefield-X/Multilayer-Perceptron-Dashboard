@@ -18,11 +18,12 @@ export const colourBar = [
 
 export let nodeSelections = [];
 export let modelActivations = null;
-export let globalNorms = {
+const globalNorms = {
   set: true,
   min: -1,
   max: 1
 }; // Default to global norms
+const decodes = [];
 
 // --- MNIST IDX file loading from /data ---
 export const mnistTestImagesBuffer = await fetchArrayBufferLocal('data/t10k-images.idx3-ubyte').then((data) => {
@@ -89,5 +90,14 @@ export function normsMinAccessor(min){
     globalNorms.min = min;
   } else {
     return globalNorms.min;
+  }
+}
+
+export function decodingsAccessor(decodings){
+  if(decodings !== undefined) {
+    decodes.length = 0;
+    decodes.push(...decodings);
+  } else {
+    return decodes;
   }
 }

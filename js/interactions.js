@@ -1,4 +1,4 @@
-import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor } from "./init.js";
+import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
 import { generateImage } from "./generate_images.js";
 import { extractMnistLabel } from "./mnist.js";
@@ -108,12 +108,15 @@ function resetSelections() {
 
 document.querySelector('#norms-toggle').addEventListener('change', function (e) {
     normsToggleAccessor(e.target.checked); // Update norms accessor based on toggle state
-    generateTopDown();
+    drawDecodings();
 });
 
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
-    toggle.addEventListener('change', generateTopDown); 
+    toggle.addEventListener('change', function (e) {
+        generateTopDown();
+        drawDecodings();
+    }); 
 });
 
 function runPrediction(e) {
@@ -133,6 +136,7 @@ function runPrediction(e) {
         updatePredictionDisplay(label, prediction, activations);
         shiftToggles(activations[1]); // Update toggle states based on activations
         generateTopDown(activations);
+        drawDecodings();
     });
 }
 
@@ -182,15 +186,10 @@ function generateTopDown() {
     const allSelections = getSelections(modulated, null);
     const allData = generateImage(allSelections, modulated, false);
 
-    const useGlobalNorms = normsToggleAccessor();
-    if(useGlobalNorms) {
-        setGlobalNorms([positiveData, negativeData, allData]);
-    }
-    
-    // Update aggregate images in the UI.
-    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', positiveData, useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', negativeData, useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', allData, useGlobalNorms);
+    const decodings = [positiveData, negativeData, allData];
+
+    setGlobalNorms(decodings);
+    decodingsAccessor(decodings);
 }
 
 function getModulations() {
@@ -230,4 +229,13 @@ function setGlobalNorms(images) {
         normsMaxAccessor(max);
         normsMinAccessor(min);
     }
+}
+
+function drawDecodings() {
+    const useGlobalNorms = normsToggleAccessor();
+    const decodings = decodingsAccessor();
+    // Update aggregate images in the UI.
+    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', decodings[0], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', decodings[1], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', decodings[2], useGlobalNorms);
 }
