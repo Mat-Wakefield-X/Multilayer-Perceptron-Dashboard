@@ -123,6 +123,12 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
     drawInputSaliency();
 });
 
+document.querySelector('#info-toggle').addEventListener('change', function (e) {
+    const info = e.target.checked;
+    const informationElements = document.querySelectorAll('.information');
+    informationElements.forEach(element => element.style.display = info ? "block" : "none");
+});
+
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     toggle.addEventListener('change', handleToggleChange); 

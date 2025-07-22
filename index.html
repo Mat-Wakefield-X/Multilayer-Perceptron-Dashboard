@@ -18,10 +18,16 @@
     <main class="main-content">
         <section id="dashboard" class="section active">
             <!-- Dashboard content goes here -->
-            <h2>Dashboard</h2>
-            <p>Welcome to the Multilayer Perceptron Inspection Dashboard.</p>
+            <h2>Network Decoding</h2>
+            <p class="information">This is an interactive dashboard for exploring Multilayer Perceptron encodings and decision making. When an input is processed through the network, 
+                it activates feature encodings on the first network layer. The output layer then combines these feature encodings using a weighted average (feature 
+                importance weights are learned during training). The combination of features reconstructs an input pattern with which the input has implicitly been
+                compared. Each output node encodes a positive concept and a negative concept. If the input is a closer match to the positive concept than the negative
+                concept, then the output node will be activated. Stronger activations indicate greater similarity to the input. Negative concepts serve the role of
+                deselecting nodes when the input contains the wrong features.</p>
             <div id="input" class="dashboard-area">
                 <h3>Input Selection</h3>
+                <p class="information">Select an input and it will be processed through the network.</p>
                 <span id="input-spinner" class="spinner" style="display: inline-block;"></span>
                 <span style="display: inline-block;">Input Label:</span>
                 <span id="input-number-label" style="font-weight: bold; display: inline-block;"></span>
@@ -35,6 +41,7 @@
             </div>
             <div id="output" class="dashboard-area">
                 <h3>Network Output</h3>
+                <p class="information">Here are the network's maximum prediction and output node activations. Use the toggles to select the decodings to visualise.</p>
                 <span style="display: inline-block;">Prediction:</span>
                 <span id="output-prediction-label" style="font-weight: bold; display: inline-block;"></span>
                 <br/>
@@ -123,6 +130,11 @@
             </div>
             <div id="decoded" class="dashboard-area">
                 <h3>Decoded Memory</h3>
+                <p class="information">Here are the decoded representations. Global normalisation will show the relative activation in terms of brightness. Local normalisation will make the decoding more visible.</p>
+                <p class="information">The decodings show the positive encodings for the selected outputs (this is the most important). The negative encoding is also shown (this is primarily to deselect a node). 
+                    The critical column shows the combination of positive and negative encodings, showing which features are critical in the decision to activate the node.</p>
+                <p class="information">Below the encodings are input saliency maps, showing how well the input matches the encoding. Below that are the maximum similarity training instances to the decoded representation.
+                    These can be useful when the network's encoded representation is unclear.</p>
                 <div class="switch-container">
                     <span style="font-weight: bold;">Normalisation: </span>
                     <span>Local</span>
@@ -192,6 +204,13 @@
         </section>
         <section class="aside">
             <h2>Controls</h2>
+            <div class="switch-container">
+                <span>Show Information:</span>
+                <label class="switch">
+                    <input type="checkbox" id="info-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
             <p>Click on encodings to combine them...</p>
             <div id="controls" class="aside-area">
                 <div class="control-box">
@@ -205,7 +224,7 @@
                     <button class="modern-btn">Reset</button>
                 </div>
             </div>
-            <div id="information" class="aside-area">
+            <div id="information" class="aside-area information">
                 <h2>Information</h2>
                 <p>Find information and documentation about this dashboard.</p>
             </div>
