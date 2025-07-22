@@ -173,7 +173,7 @@ function runPrediction(e) {
         generateTopDown(activations);
         drawDecodings();
         drawInputSaliency();
-        drawMaxSimilarity();
+        // drawMaxSimilarity();
     });
 }
 
