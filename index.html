@@ -132,19 +132,31 @@
                     </label>
                     <span>Global</span>
                 </div>
-                <div class="grid-table-output-3">
-                    <span class="top-cell">
+                <div class="grid-table-output-4">
+                    <span class="top-cell" style="font-weight: bold;">Positive</span>
+                    <span class="top-cell" style="font-weight: bold;">Negative</span>
+                    <span class="top-cell" style="font-weight: bold;">Critical</span>
+                    <span class="top-cell"></span>
+                    <span class="middle-cell">
                         <svg id="decoded-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     </span>
-                    <span class="top-cell">
+                    <span class="middle-cell">
                         <svg id="decoded-negative-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     </span>
-                    <span class="top-cell">
+                    <span class="middle-cell">
                         <svg id="decoded-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     </span>
-                    <span class="bottom-cell" style="font-weight: bold;">Positive</span>
-                    <span class="bottom-cell" style="font-weight: bold;">Negative</span>
-                    <span class="bottom-cell" style="font-weight: bold;">Hyperplane</span>
+                    <span class="middle-cell" style="font-weight: bold;">Decoding</span>
+                    <span class="bottom-cell">
+                        <svg id="saliency-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="bottom-cell">
+                        <svg id="saliency-negative-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="bottom-cell">
+                        <svg id="saliency-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    </span>
+                    <span class="bottom-cell" style="font-weight: bold;">Input Saliency</span>
                 </div>
             </div>
             <div id="histogram" class="dashboard-area">

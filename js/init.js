@@ -1,6 +1,6 @@
 import { displayEncodingSVGs } from './draw_weights.js';
 import { tooltipEventListener, encodeClickEventListener } from './interactions.js';
-import { extractMnistLabel, getNumMnistImages } from './mnist.js';
+import { extractMnistLabel, extractMnistImage, getNumMnistImages } from './mnist.js';
 
 console.log('Loading TensorFlow.js library...');
 
@@ -23,6 +23,11 @@ const globalNorms = {
   min: -1,
   max: 1
 }; // Default to global norms
+const input = {
+  index: null,
+  label: null,
+  image: null
+}
 const decodes = [];
 
 // --- MNIST IDX file loading from /data ---
@@ -60,6 +65,16 @@ await displayEncodingSVGs().then(svgs => {
   encodeClickEventListener(imgs);
   console.log('Encoding SVGs displayed successfully');
 });
+
+export function loadInstance(index) {
+  input.index = index;
+  input.label = extractMnistLabel(mnistTestLabelsBuffer, index);
+  input.image = extractMnistImage(mnistTestImagesBuffer, index);
+}
+
+export function getInstance() {
+  return input;
+}
 
 export function activationsAccessor(activations) {
   if (activations !== undefined) {

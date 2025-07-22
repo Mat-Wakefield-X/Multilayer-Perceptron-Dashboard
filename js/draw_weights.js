@@ -100,19 +100,18 @@ export function generateAggregateImage(size, svg, id, data = null, globalNorms =
     }
 }
 
-export function drawInputImage(index, svg) {
+export function drawInputImage(input, svg) {
     svg.innerHTML = ''; // Clear previous content
     const size = 2;
     const imageSize = 28 * size;
-    const group = createWeightsImageGroup(`input-${index}`, size);
+    const group = createWeightsImageGroup(`input-${input.index + 1}`, size);
     group.setAttribute("id", "input_image");
 
     // Extract the MNIST image data
-    const mnistImage = extractMnistImage(mnistTestImagesBuffer, index);
     const cells = group.querySelectorAll('rect');
     
     for (let i = 0; i < 784; i++) {
-        const value = mnistImage[i] / 2.0; // Normalize to [0, 1]
+        const value = input.image[i] / 2.0; // Normalize to [0, 1]
         const colour = getColour(value); // Convert to [-1, 1] range
         cells[i].setAttribute('fill', colour);
     }

@@ -1,8 +1,14 @@
-import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor } from "./init.js";
+import { nodeSelections, mnistTestLabelsBuffer, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance } from "./init.js";
 import { generateAggregateImage, drawInputImage } from "./draw_weights.js";
 import { generateImage } from "./generate_images.js";
 import { extractMnistLabel } from "./mnist.js";
 import { runMNISTInference } from "./run_model.js";
+
+/*
+-------------------------------------------------------------------------------
+    FEATURE INSPECTIONS
+-------------------------------------------------------------------------------
+*/
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -106,9 +112,16 @@ function resetSelections() {
     });
 }
 
+/*
+-------------------------------------------------------------------------------
+    DECODING
+-------------------------------------------------------------------------------
+*/
+
 document.querySelector('#norms-toggle').addEventListener('change', function (e) {
     normsToggleAccessor(e.target.checked); // Update norms accessor based on toggle state
     drawDecodings();
+    drawInputSaliency();
 });
 
 document.querySelector('#input-number').addEventListener('change', runPrediction);
@@ -116,6 +129,7 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     toggle.addEventListener('change', function (e) {
         generateTopDown();
         drawDecodings();
+        drawInputSaliency();
     }); 
 });
 
@@ -126,17 +140,20 @@ function runPrediction(e) {
         document.getElementById('input-number').value = index;
     }
     index -= 1; // Convert to 0-based index
+    loadInstance(index);
+    const input = getInstance();
+
     const svg = document.querySelector('#input-svg');
-    svg.innerHTML = ''; // Clear previous content
-    drawInputImage(index, svg); // Regenerate input image
-    const label = extractMnistLabel(mnistTestLabelsBuffer, index);
-    document.getElementById('input-number-label').innerText = label; // Update label display
+    drawInputImage(input, svg); // Regenerate input image
+
+    document.getElementById('input-number-label').innerText = input.label; // Update label display
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
-        updatePredictionDisplay(label, prediction, activations);
+        updatePredictionDisplay(input.label, prediction, activations);
         shiftToggles(activations[1]); // Update toggle states based on activations
         generateTopDown(activations);
         drawDecodings();
+        drawInputSaliency();
     });
 }
 
@@ -235,7 +252,22 @@ function drawDecodings() {
     const useGlobalNorms = normsToggleAccessor();
     const decodings = decodingsAccessor();
     // Update aggregate images in the UI.
-    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'top-down-aggregate', decodings[0], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'top-down-aggregate', decodings[1], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'top-down-aggregate', decodings[2], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'positive-aggregate', decodings[0], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'negative-aggregate', decodings[1], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'hyperplane-aggregate', decodings[2], useGlobalNorms);
+}
+
+function drawInputSaliency() {
+    const useGlobalNorms = normsToggleAccessor();
+    const input = getInstance().image;
+    const decodings = decodingsAccessor();
+    const saliencies = decodings.map(decoding => ({
+        image: input.map((val, idx) => val * decoding.image[idx]),
+        min: decoding.min,
+        max: decoding.max
+    }));
+    console.log("Saliencies:", saliencies);
+    generateAggregateImage(5, document.querySelector('#saliency-positive-svg'), 'positive-saliency', saliencies[0], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#saliency-negative-svg'), 'negative-saliency', saliencies[1], useGlobalNorms);
+    generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
 }
