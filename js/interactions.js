@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getmodelPredictions } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -142,8 +142,14 @@ document.querySelectorAll('.output-value').forEach(input => {
         .replace(/^(\.)/, '')                 // Prevent starting with a dot
         .replace(/(\..*)\./g, '$1');          // Allow only one dot
 
-    this.value = cleaned;
+        this.value = cleaned;
     });
+    input.addEventListener('blur', function() {
+        handleOutpuValueChange(this);
+    })
+    input.addEventListener('keydown', function(e) {
+        if(e.key === "Enter") handleOutpuValueChange(this);
+    })
 });
 
 function sleep(ms) {
@@ -166,6 +172,17 @@ async function handleToggleChange(generate=true) {
     if(maxSim) await drawMaxSimilarity();
 }
 
+function handleOutpuValueChange(input) {
+    // Parse and format if cleaned string is a valid number
+    const parsed = parseFloat(input.value);
+    if (!isNaN(parsed)) {
+        input.value = parsed.toFixed(4);
+    }
+    const match = input.id.match(/output-(\d+)/);
+    const index = match ? parseInt(match[1], 10) : null;
+    updatePredictions(null, index, parsed);
+    handleToggleChange();
+}
 
 function runPrediction(e) {
     let index = parseInt(e.target.value, 10);
@@ -184,6 +201,7 @@ function runPrediction(e) {
 
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
+        updatePredictions(prediction, -1);
         updatePredictionDisplay(input.label, prediction, activations);
         shiftToggles(activations[1]); // Update toggle states based on activations
         handleToggleChange();
@@ -241,13 +259,10 @@ function generateTopDown() {
 function getModulations() {
     const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
     // Determine modulation values for encoding features based on selected outputs.
-    const modelActivations = activationsAccessor();
-    const textValues = Array.from(document.querySelectorAll('.output-value')).map(input => input.value);
-    console.log("Text Values:", textValues)
-    console.log("Modulations:", modelActivations[1]);
+    const modelActivations = getmodelPredictions().activations;
     return checkedStates.map((checked, i) => {
         const select = checked ? 1 : 0;
-        const y = modelActivations[1][i];
+        const y = modelActivations[i];
         // const y = 1;
         return weights2.map((feature) => feature[i] * select * y);
     }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));

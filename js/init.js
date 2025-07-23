@@ -17,7 +17,11 @@ export const colourBar = [
 ];
 
 export let nodeSelections = [];
-export let modelActivations = null;
+let modelActivations = null;
+const modelPredictions = {
+  prediction: null,
+  activations: null
+}
 const globalNorms = {
   set: document.querySelector("#norms-toggle").checked,
   min: -1,
@@ -82,12 +86,27 @@ export function getInstance() {
   return input;
 }
 
+export function updatePredictions(prediction, index=-1, value)
+{
+  if(prediction != null) modelPredictions.prediction = prediction;
+  if(index != -1) {
+    modelPredictions.activations[index] = (value == 0) ? modelActivations[1][index] : value;
+  } else
+  {
+    modelPredictions.activations = Array.from(modelActivations[1]);
+  }
+}
+
 export function activationsAccessor(activations) {
   if (activations !== undefined) {
     modelActivations = activations;
   } else {
     return modelActivations;
   }
+}
+
+export function getmodelPredictions() {
+  return modelPredictions;
 }
 
 export function normsToggleAccessor(norms) {
