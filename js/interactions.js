@@ -115,10 +115,21 @@ function selectEncodingFeature(wrapper, img, num) {
             wrapper.classList.remove('selected');
         }
         highlightImage(wrapper); // Update image border based on selection
-        const data = generateImage(nodeSelections)
+        const data = generateImage(nodeSelections);
         generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
+        drawManualSaliency(data);
     }
 }
+
+function drawManualSaliency(data) {
+    const saliency = {
+        image: computeInputSaliency(data),
+        min: data.min,
+        max: data.max
+    }
+    generateAggregateImage(5, document.querySelector('#manual-saliency-svg'), 'manual-saliency', saliency);
+}
+
 
 function highlightImage(img) {
     if(img.classList.contains('selected')) {
@@ -130,6 +141,7 @@ function highlightImage(img) {
 
 function resetSelections() {
     nodeSelections.length = 0; // Clear the array
+    generateAggregateImage(5, document.querySelector('#manual-saliency-svg'), 'manual-saliency');
     generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate'); // Regenerate aggregate image
     const highlighted = document.querySelectorAll('.selected');
     highlighted.forEach(img => {
@@ -383,16 +395,20 @@ function drawDecodings() {
 
 function drawInputSaliency() {
     const useGlobalNorms = normsToggleAccessor();
-    const input = getInstance().image;
     const decodings = decodingsAccessor();
     const saliencies = decodings.map(decoding => ({
-        image: input.map((val, idx) => val * decoding.image[idx]),
+        image: computeInputSaliency(decoding),
         min: decoding.min,
         max: decoding.max
     }));
     generateAggregateImage(5, document.querySelector('#saliency-positive-svg'), 'positive-saliency', saliencies[0], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-negative-svg'), 'negative-saliency', saliencies[1], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
+}
+
+function computeInputSaliency(comparison) {
+    const input = getInstance().image;
+    return input.map((val, idx) => val * comparison.image[idx])
 }
 
 async function drawMaxSimilarity() {
