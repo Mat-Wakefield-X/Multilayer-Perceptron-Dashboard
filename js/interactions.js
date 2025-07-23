@@ -138,9 +138,11 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
 document.querySelectorAll('.output-value').forEach(input => {
     input.addEventListener("input", function (e) {
         let cleaned = this.value
-        .replace(/[^0-9.]/g, '')              // Remove non-numeric and non-dot characters
-        .replace(/^(\.)/, '')                 // Prevent starting with a dot
-        .replace(/(\..*)\./g, '$1');          // Allow only one dot
+            .replace(/[^\d.-]/g, '')                   // Remove everything except digits, dot, and minus
+            .replace(/(?!^)-/g, '')                    // Remove all minus signs except the first
+            .replace(/^(-?\.)/, '$1')                  // Prevent starting with just a dot after optional minus
+            .replace(/(\..*)\./g, '$1');               // Allow only one dot
+
 
         this.value = cleaned;
     });
