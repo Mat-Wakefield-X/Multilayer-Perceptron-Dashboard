@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multilayer Perceptron Inspection Dashboard</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/ico" href="/images/favicon.ico">
 </head>
 <body>
     <header class="title-bar">
@@ -284,7 +285,13 @@
                     <svg id="manual-saliency-svg" viewbox="0 0 140 140" style="max-width: 140px"></svg>
                     <button id="reset-manual" class="modern-btn" style="grid-column: span 2; width: fit-content;">Reset</button>
                 </div>
-                <div class="control-box"></div>
+                <div class="control-box">
+                    <strong style="justify-self: left;">Stash Area</strong>
+                    <span style="justify-self: right;">
+                        <button id="stash-add" class="modern-btn" style="width: 45px; height: 45px; font-size: 2em; padding: 0;">+</button>
+                        <button id="stash-expand" class="modern-btn" style="width: 45px; height: 45px; font-size: 1.9em; padding: 0;">⛶</button>
+                    </span>
+                </div>
             </div>
         </section>
     </main>
