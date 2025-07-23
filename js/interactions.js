@@ -251,6 +251,9 @@ async function handleToggleChange(generate=true) {
 
         await sleep(0);
         drawInputSaliency();
+
+        await sleep(0);
+        applyEncodingFeatureStyles();
     }
 
     const maxSim = document.querySelector('#max-sim-toggle').checked;
