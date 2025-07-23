@@ -417,6 +417,11 @@ body {
     align-content: center;   /* centers vertically */
     align-items: center;
 }
+input.output-value {
+    width: 7ch;
+    font: inherit;
+    text-align: center;
+}
 .switch-container {
   display: flex;
   align-items: center;

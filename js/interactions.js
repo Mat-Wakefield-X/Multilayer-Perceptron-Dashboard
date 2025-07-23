@@ -125,7 +125,7 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
 
 document.querySelector('#max-sim-toggle').addEventListener('change', function (e) {
     showHideMaxSim();
-    if(e.target.checked) drawMaxSimilarity();
+    if(e.target.checked) handleToggleChange(false);
 });
 
 document.querySelector('#info-toggle').addEventListener('change', showHideInformation);
@@ -135,19 +135,32 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     toggle.addEventListener('change', handleToggleChange); 
 });
 
+document.querySelectorAll('.output-value').forEach(input => {
+    input.addEventListener("input", function (e) {
+        let cleaned = this.value
+        .replace(/[^0-9.]/g, '')              // Remove non-numeric and non-dot characters
+        .replace(/^(\.)/, '')                 // Prevent starting with a dot
+        .replace(/(\..*)\./g, '$1');          // Allow only one dot
+
+    this.value = cleaned;
+    });
+});
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function handleToggleChange() {
+async function handleToggleChange(generate=true) {
     await sleep(300); // allow animation to kick in
-    generateTopDown();
+    if(generate) {
+        generateTopDown();
 
-    await sleep(0);
-    drawDecodings();
+        await sleep(0);
+        drawDecodings();
 
-    await sleep(0);
-    drawInputSaliency();
+        await sleep(0);
+        drawInputSaliency();
+    }
 
     const maxSim = document.querySelector('#max-sim-toggle').checked;
     if(maxSim) await drawMaxSimilarity();
@@ -174,10 +187,7 @@ function runPrediction(e) {
         activationsAccessor(activations); // Store activations globally
         updatePredictionDisplay(input.label, prediction, activations);
         shiftToggles(activations[1]); // Update toggle states based on activations
-        generateTopDown(activations);
-        drawDecodings();
-        drawInputSaliency();
-        if(maxSim) drawMaxSimilarity();
+        handleToggleChange();
     });
 }
 
@@ -186,13 +196,9 @@ function updatePredictionDisplay(label, prediction, activations) {
     document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
     for (const [i, value] of activations[1].entries()) {
         const cell = document.querySelector(`#output-${i}`);
-        cell.innerText = value.toFixed(4); // Update activations display
-        cell.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
-        if(value > 0.5){
-            cell.style.color = 'white'; // Change text color for better contrast
-        } else {
-            cell.style.color = 'black'; // Reset text color for low values
-        }
+        cell.value = value.toFixed(4); 
+        const container = document.querySelector(`#output-${i}-cell`);
+        container.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
     }
 }
 
@@ -237,6 +243,9 @@ function getModulations() {
     const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
     // Determine modulation values for encoding features based on selected outputs.
     const modelActivations = activationsAccessor();
+    const textValues = Array.from(document.querySelectorAll('.output-value')).map(input => input.value);
+    console.log("Text Values:", textValues)
+    console.log("Modulations:", modelActivations[1]);
     return checkedStates.map((checked, i) => {
         const select = checked ? 1 : 0;
         const y = modelActivations[1][i];
