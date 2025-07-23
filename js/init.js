@@ -1,5 +1,5 @@
 import { displayEncodingSVGs } from './draw_weights.js';
-import { tooltipEventListener, encodeClickEventListener, showHideMaxSim, showHideInformation, applyEncodingFeatureStyles } from './interactions.js';
+import { tooltipEventListener, encodeClickEventListener, showHideMaxSim, showHideInformation, applyEncodingFeatureStyles, showHideHighlightingTypeSwitch } from './interactions.js';
 import { extractMnistLabel, extractMnistImage, getNumMnistImages } from './mnist.js';
 
 console.log('Loading TensorFlow.js library...');
@@ -18,6 +18,7 @@ export const colourBar = [
 
 export let nodeSelections = [];
 let modelActivations = null;
+let topDownModulations = null;
 const modelPredictions = {
   prediction: null,
   activations: null
@@ -51,6 +52,7 @@ export const mnistTrainSize = getNumMnistImages(mnistTrainImagesBuffer);
 
 showHideMaxSim();
 showHideInformation();
+showHideHighlightingTypeSwitch();
 document.querySelector("#input-number").dispatchEvent(new Event('change')); // Trigger change event to initialize input image
 
 console.log('Model loaded successfully:', model);
@@ -68,11 +70,11 @@ await displayEncodingSVGs().then(svgs => {
   new Promise(resolve => setTimeout(resolve, 2000)).then(() => {
       document.getElementById('feature-spinner').setAttribute('style', 'display: none;');
       svgs.setAttribute('style', 'display: block;');
+      applyEncodingFeatureStyles();
   });
-  const imgs = svgs.querySelectorAll('img');
-  tooltipEventListener(imgs);
-  encodeClickEventListener(imgs);
-  applyEncodingFeatureStyles();
+  const encodingFeatures = svgs.querySelectorAll('#encoding_features .wrapper');
+  tooltipEventListener(encodingFeatures);
+  encodeClickEventListener(encodingFeatures);
   console.log('Encoding SVGs displayed successfully');
 });
 
@@ -102,6 +104,14 @@ export function activationsAccessor(activations) {
     modelActivations = activations;
   } else {
     return modelActivations;
+  }
+}
+
+export function modulationsAccessor(modulations) {
+  if (modulations !== undefined) {
+    topDownModulations = modulations;
+  } else {
+    return topDownModulations;
   }
 }
 

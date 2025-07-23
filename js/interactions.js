@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -9,9 +9,19 @@ import { runMNISTInference } from "./run_model.js";
 -------------------------------------------------------------------------------
 */
 
+document.querySelector('#reset-manual').addEventListener('click', resetSelections);
+
+document.querySelector('#weighting-toggle').addEventListener('change', function() {
+    applyEncodingFeatureStyles();
+    showHideHighlightingTypeSwitch();
+});
+
+document.querySelector("#modulation-toggle").addEventListener('change', applyEncodingFeatureStyles);
+
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
-    elements.forEach(img => {
+    elements.forEach(wrapper => {
+        const img = wrapper.querySelector("img");
         img.addEventListener('mouseenter', function (e) {
             showEncodingTooltip(e, extractFeatureNumber(img), img);
         });
@@ -33,6 +43,16 @@ export function tooltipEventListener(elements) {
     });
 }
 
+export function encodeClickEventListener(elements) {
+    elements.forEach(wrapper => {
+        const img = wrapper.querySelector("img");
+        const num = extractFeatureNumber(img).number;
+        img.addEventListener('click', function () {
+            selectEncodingFeature(img, num);
+        });
+    });
+}
+
 function extractFeatureNumber(img) {
     // Extract feature number from src
     const match = img.id.match(/feature_(\d+)/);
@@ -46,49 +66,49 @@ function extractFeatureNumber(img) {
 };
 
 function showEncodingTooltip(event, feature, img) {
-    const scale = 4; // Scale factor for tooltip image size
-    const tooltip = document.getElementById('encoding-tooltip');
-    // If feature is provided, set content; otherwise, just reposition
-    if (feature) {
-        tooltip.innerHTML = `
-            <div style="font-weight:bold; margin-bottom:6px;">${feature.name}</div>
-            <img src="${img.src}" style="width:${img.width * scale}px;height:${img.height * scale}px;display:block;margin:auto;" />
-        `;
-    }
-    tooltip.style.display = 'block';
+    if(img.classList.contains('visible')) {
+        const scale = 4; // Scale factor for tooltip image size
+        const tooltip = document.getElementById('encoding-tooltip');
+        // If feature is provided, set content; otherwise, just reposition
+        if (feature) {
+            const activation = activationsAccessor()[0][feature.number].toFixed(4);
+            const modulation = modulationsAccessor()[feature.number].toFixed(4);
+            tooltip.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:6px;">${feature.name}</div>
+                <img src="${img.src}" style="width:${img.width * scale}px;height:${img.height * scale}px;display:block;margin:auto;" />
+                <div style="margin-top: 6px;"><strong>Activation:</strong> ${activation} <strong>Modulation:</strong> ${modulation}</div>
+            `;
+        }
+        tooltip.style.display = 'block';
 
-    // Position tooltip near mouse, but keep on screen
-    const tooltipRect = tooltip.getBoundingClientRect();
-    let x = event.clientX + 16;
-    let y = event.clientY + 16;
-    if (x + tooltipRect.width > window.innerWidth) {
-        x = window.innerWidth - tooltipRect.width - 8;
+        // Position tooltip near mouse, but keep on screen
+        const tooltipRect = tooltip.getBoundingClientRect();
+        let x = event.clientX + 16;
+        let y = event.clientY + 16;
+        if (x + tooltipRect.width > window.innerWidth) {
+            x = window.innerWidth - tooltipRect.width - 8;
+        }
+        if (y + tooltipRect.height > window.innerHeight) {
+            y = window.innerHeight - tooltipRect.height - 8;
+        }
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
     }
-    if (y + tooltipRect.height > window.innerHeight) {
-        y = window.innerHeight - tooltipRect.height - 8;
-    }
-    tooltip.style.left = x + 'px';
-    tooltip.style.top = y + 'px';
 }
 
-export function encodeClickEventListener(elements) {
-    elements.forEach(img => {
-        const num = extractFeatureNumber(img).number;
-        img.addEventListener('click', function (e) {
-            if(!nodeSelections.includes(num)) {
-                nodeSelections.push(num);
-                img.classList.add('selected'); // Add a class for styling
-            } else {
-                const filtered = nodeSelections.filter(item => item !== num);
-                nodeSelections.length = 0; // Clear the array
-                nodeSelections.push(...filtered);
-                img.classList.remove('selected'); // Remove the class
-            }
-            highlightImage(img); // Update image border based on selection
-            const data = generateImage(nodeSelections)
-            generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
-        });
-    });
+function selectEncodingFeature(img, num) {
+    if(!nodeSelections.includes(num)) {
+        nodeSelections.push(num);
+        img.classList.add('selected'); // Add a class for styling
+    } else {
+        const filtered = nodeSelections.filter(item => item !== num);
+        nodeSelections.length = 0; // Clear the array
+        nodeSelections.push(...filtered);
+        img.classList.remove('selected'); // Remove the class
+    }
+    highlightImage(img); // Update image border based on selection
+    const data = generateImage(nodeSelections)
+    generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
 }
 
 function highlightImage(img) {
@@ -99,8 +119,6 @@ function highlightImage(img) {
     }
 }
 
-document.querySelector('#reset-manual').addEventListener('click', resetSelections);
-
 function resetSelections() {
     nodeSelections.length = 0; // Clear the array
     generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate'); // Regenerate aggregate image
@@ -109,6 +127,44 @@ function resetSelections() {
         img.classList.remove('selected'); // Remove the class
         highlightImage(img); // Reset border for highlighted images
     });
+}
+
+export function applyEncodingFeatureStyles(){
+    const wrappers = document.querySelectorAll('#encoding_features .wrapper');
+    const style = document.querySelector("#weighting-toggle").checked;
+    const modulation = document.querySelector('#modulation-toggle').checked;
+
+    const activations = modulation ? modulationsAccessor() : activationsAccessor()[0];
+    if(activations != null)
+    {
+        const maxActivation = Math.max(...activations);
+        wrappers.forEach((wrapper, i) => {
+            const img = wrapper.querySelector("img");
+            const tint = wrapper.querySelector(".tinted");
+            if (style) {
+                const value = activations[i];
+                const opacity = (Math.abs(value) / maxActivation).toFixed(3);
+                img.style.opacity = opacity;
+                const positive = value > 0;
+                const colour = `rgba(${positive ? 0 : 125}, ${positive ? 125 : 0}, 0, ${opacity})`;
+                tint.style.backgroundColor = (value == 0 || !modulation) ? null : colour;
+                if(value == 0) {
+                    img.classList.remove('visible');
+                } else {
+                    img.classList.add('visible');
+                }
+            } else {
+                img.style.opacity = "1";
+                tint.style.backgroundColor = null;
+                img.classList.add('visible');
+            }
+        });
+    }
+}
+
+export function showHideHighlightingTypeSwitch(){
+    const highlighting = document.querySelector("#weighting-toggle").checked;
+    document.querySelector('#type-switch').style.display = highlighting ? null : 'none';
 }
 
 /*
@@ -157,8 +213,6 @@ document.querySelector("#reset-output").addEventListener("click", function () {
     updatePredictionDisplay(input.label);
     handleToggleChange();
 });
-
-document.querySelector('#weighting-toggle').addEventListener('change', applyEncodingFeatureStyles);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -248,7 +302,8 @@ function greenOpacityGradient(value) {
 
 function generateTopDown() {
     // Determine modulated activations for the first layer.
-    const modulations = getModulations();
+    const modulations = computeModulations();
+    modulationsAccessor(modulations);
     const modulated = activationsAccessor()[0].map((val, idx) => val * modulations[idx]);
 
     // Generate aggregate images based on positive, negative, and all selections.
@@ -267,16 +322,18 @@ function generateTopDown() {
     decodingsAccessor(decodings);
 }
 
-function getModulations() {
+function computeModulations() {
     const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
     // Determine modulation values for encoding features based on selected outputs.
-    const modelActivations = getModelPredictions().activations;
-    return checkedStates.map((checked, i) => {
+    const outputActivations = getModelPredictions().activations;
+    const modulations = checkedStates.map((checked, i) => {
         const select = checked ? 1 : 0;
-        const y = modelActivations[i];
+        const y = outputActivations[i];
         // const y = 1;
-        return weights2.map((feature) => feature[i] * select * y);
-    }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));
+        return weights2.map((weight) => weight[i] * select * y);
+        }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));
+    const featureActivations = activationsAccessor()[0];
+    return modulations.map((mod, i) => mod * featureActivations[i]);
 }
 
 function getSelections(modulated, positive){
@@ -362,20 +419,6 @@ async function drawMaxSimilarity() {
 
         resolve();
     }, 0));
-}
-
-export function applyEncodingFeatureStyles(){
-    const features = document.querySelectorAll('#encoding_features img');
-    const style = document.querySelector("#weighting-toggle").checked;
-    const activations = activationsAccessor()[0];
-    const maxActivation = Math.max(...activations);
-    features.forEach((img, i) => {
-        if (style && maxActivation > 0) {
-            img.style.opacity = (activations[i] / maxActivation).toFixed(3);
-        } else {
-            img.style.opacity = "1";
-        }
-    });
 }
 
 export function showHideInformation() {

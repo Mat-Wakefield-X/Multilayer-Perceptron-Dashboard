@@ -473,3 +473,19 @@ input:checked + .slider {
 input:checked + .slider::before {
   left: calc(100% - 21px);
 }
+.tinted {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 56px;
+    height: 56px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+.wrapper {
+    position: relative;
+    display: inline-block;
+}
+.wrapper img {
+    display: block;
+}
