@@ -22,18 +22,20 @@ export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
     elements.forEach(wrapper => {
         const img = wrapper.querySelector("img");
+        const num = extractFeatureNumber(img);
+
         img.addEventListener('mouseenter', function (e) {
-            showEncodingTooltip(e, extractFeatureNumber(img), img);
+            showEncodingTooltip(e, num, img, wrapper);
         });
 
         img.addEventListener('touchstart', function (e) {
             // For touch devices, show tooltip on touch
-            showEncodingTooltip(e, extractFeatureNumber(img), img);
+            showEncodingTooltip(e, num, img, wrapper);
         });
 
         img.addEventListener('mousemove', function (e) {
             // Move tooltip with mouse
-            showEncodingTooltip(e, null, img);
+            showEncodingTooltip(e, null, img, wrapper);
         });
 
         img.addEventListener('mouseleave', function () {
@@ -65,8 +67,10 @@ function extractFeatureNumber(img) {
     return feature;
 };
 
-function showEncodingTooltip(event, feature, img) {
-    if(img.classList.contains('visible')) {
+function showEncodingTooltip(event, feature, img, wrapper) {
+    const visible = img.classList.contains('visible');
+    const selected = wrapper.classList.contains('selected');
+    if(visible || selected) {
         const scale = 4; // Scale factor for tooltip image size
         const tooltip = document.getElementById('encoding-tooltip');
         // If feature is provided, set content; otherwise, just reposition
@@ -97,18 +101,23 @@ function showEncodingTooltip(event, feature, img) {
 }
 
 function selectEncodingFeature(wrapper, img, num) {
-    if(!nodeSelections.includes(num)) {
+    const weightings = document.querySelector("#weighting-toggle").checked;
+    const visible = !weightings || (weightings && img.classList.contains('visible'));
+    const selected = wrapper.classList.contains('selected');
+    if(visible || selected) {
+        if(!nodeSelections.includes(num)) {
         nodeSelections.push(num);
         wrapper.classList.add('selected'); 
-    } else {
-        const filtered = nodeSelections.filter(item => item !== num);
-        nodeSelections.length = 0; // Clear the array
-        nodeSelections.push(...filtered);
-        wrapper.classList.remove('selected');
+        } else {
+            const filtered = nodeSelections.filter(item => item !== num);
+            nodeSelections.length = 0; // Clear the array
+            nodeSelections.push(...filtered);
+            wrapper.classList.remove('selected');
+        }
+        highlightImage(wrapper); // Update image border based on selection
+        const data = generateImage(nodeSelections)
+        generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
     }
-    highlightImage(wrapper); // Update image border based on selection
-    const data = generateImage(nodeSelections)
-    generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
 }
 
 function highlightImage(img) {
@@ -143,8 +152,10 @@ export function applyEncodingFeatureStyles(){
             const tint = wrapper.querySelector(".tinted");
             if (style) {
                 const value = activations[i];
-                const opacity = (Math.abs(value) / maxActivation).toFixed(3);
-                img.style.opacity = opacity;
+                const normalised = Math.abs(value) / maxActivation;
+                const scaled = 0.05 + (normalised * 0.95);
+                const opacity = Math.min(scaled, 1).toFixed(3);
+                img.style.opacity = (value == 0) ? 0 : opacity;
                 const positive = value > 0;
                 const colour = `rgba(${positive ? 0 : 125}, ${positive ? 125 : 0}, 0, ${opacity})`;
                 tint.style.backgroundColor = (value == 0 || !modulation) ? null : colour;
