@@ -485,6 +485,9 @@ input:checked + .slider::before {
 .wrapper {
     position: relative;
     display: inline-block;
+    width: 59px;
+    height: 59px;
+    border: 2px solid transparent;
 }
 .wrapper img {
     display: block;

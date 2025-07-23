@@ -48,7 +48,7 @@ export function encodeClickEventListener(elements) {
         const img = wrapper.querySelector("img");
         const num = extractFeatureNumber(img).number;
         img.addEventListener('click', function () {
-            selectEncodingFeature(img, num);
+            selectEncodingFeature(wrapper, img, num);
         });
     });
 }
@@ -96,26 +96,26 @@ function showEncodingTooltip(event, feature, img) {
     }
 }
 
-function selectEncodingFeature(img, num) {
+function selectEncodingFeature(wrapper, img, num) {
     if(!nodeSelections.includes(num)) {
         nodeSelections.push(num);
-        img.classList.add('selected'); // Add a class for styling
+        wrapper.classList.add('selected'); 
     } else {
         const filtered = nodeSelections.filter(item => item !== num);
         nodeSelections.length = 0; // Clear the array
         nodeSelections.push(...filtered);
-        img.classList.remove('selected'); // Remove the class
+        wrapper.classList.remove('selected');
     }
-    highlightImage(img); // Update image border based on selection
+    highlightImage(wrapper); // Update image border based on selection
     const data = generateImage(nodeSelections)
     generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
 }
 
 function highlightImage(img) {
     if(img.classList.contains('selected')) {
-        img.style.border = '2px solid red'; // Highlight selected image
+        img.style.border = '2px solid blue'; // Highlight selected image
     } else {
-        img.style.border = '2px solid white'; // Reset border for unselected images
+        img.style.border = '2px solid transparent'; // Reset border for unselected images
     }
 }
 
