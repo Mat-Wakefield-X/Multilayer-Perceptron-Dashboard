@@ -19,7 +19,7 @@ export const colourBar = [
 export let nodeSelections = [];
 export let modelActivations = null;
 const globalNorms = {
-  set: true,
+  set: document.querySelector("#norms-toggle").checked,
   min: -1,
   max: 1
 }; // Default to global norms

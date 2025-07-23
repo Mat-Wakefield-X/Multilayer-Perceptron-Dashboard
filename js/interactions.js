@@ -181,7 +181,6 @@ function runPrediction(e) {
     drawInputImage(input, 2, svg); // Regenerate input image
 
     document.getElementById('input-number-label').innerText = input.label; // Update label display
-    const maxSim = document.querySelector('#max-sim-toggle').checked;
 
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
@@ -273,12 +272,10 @@ function getSelections(modulated, positive){
 
 function setGlobalNorms(images) {
     const globalNorms = normsToggleAccessor();
-    if (globalNorms) {
-        const max = Math.max(...images.map(img => img.max));
-        const min = Math.min(...images.map(img => img.min));
-        normsMaxAccessor(max);
-        normsMinAccessor(min);
-    }
+    const max = Math.max(...images.map(img => img.max));
+    const min = Math.min(...images.map(img => img.min));
+    normsMaxAccessor(max);
+    normsMinAccessor(min);
 }
 
 function drawDecodings() {
@@ -352,10 +349,10 @@ export function showHideMaxSim(){
     document.querySelector('#max-sim-message').style.display = maxSim ? 'none' : 'block';
     document.querySelectorAll('[id^="max-"][id$="-svg"]')
         .forEach(svg => {
-            svg.style.display = maxSim ? 'block' : 'none';
-        })
-    document.querySelectorAll('.max-sim')
+            svg.style.display = 'none';
+        });
+    document.querySelectorAll('.spinner.max-sim')
         .forEach(spinner => {
-            spinner.style.display = 'none';
+            spinner.style.display = maxSim ? 'block' : "none";
         });
 }
