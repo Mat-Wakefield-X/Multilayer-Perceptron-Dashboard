@@ -1,5 +1,5 @@
 import { displayEncodingSVGs } from './draw_weights.js';
-import { tooltipEventListener, encodeClickEventListener, showHideMaxSim, showHideInformation } from './interactions.js';
+import { tooltipEventListener, encodeClickEventListener, showHideMaxSim, showHideInformation, applyEncodingFeatureStyles } from './interactions.js';
 import { extractMnistLabel, extractMnistImage, getNumMnistImages } from './mnist.js';
 
 console.log('Loading TensorFlow.js library...');
@@ -56,7 +56,6 @@ document.querySelector("#input-number").dispatchEvent(new Event('change')); // T
 console.log('Model loaded successfully:', model);
 console.log('Weights of layer 1:', weights1);
 console.log('Weights of layer 2:', weights2);
-console.log('Colour bar:', colourBar);
 
 async function fetchArrayBufferLocal(url) {
     const response = await fetch(url);
@@ -73,6 +72,7 @@ await displayEncodingSVGs().then(svgs => {
   const imgs = svgs.querySelectorAll('img');
   tooltipEventListener(imgs);
   encodeClickEventListener(imgs);
+  applyEncodingFeatureStyles();
   console.log('Encoding SVGs displayed successfully');
 });
 

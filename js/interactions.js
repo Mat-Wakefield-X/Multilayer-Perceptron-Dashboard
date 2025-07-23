@@ -99,7 +99,7 @@ function highlightImage(img) {
     }
 }
 
-document.querySelector('.modern-btn').addEventListener('click', resetSelections);
+document.querySelector('#reset-manual').addEventListener('click', resetSelections);
 
 function resetSelections() {
     nodeSelections.length = 0; // Clear the array
@@ -143,7 +143,6 @@ document.querySelectorAll('.output-value').forEach(input => {
             .replace(/^(-?\.)/, '$1')                  // Prevent starting with just a dot after optional minus
             .replace(/(\..*)\./g, '$1');               // Allow only one dot
 
-
         this.value = cleaned;
     });
     input.addEventListener('blur', function() {
@@ -158,6 +157,8 @@ document.querySelector("#reset-output").addEventListener("click", function () {
     updatePredictionDisplay(input.label);
     handleToggleChange();
 });
+
+document.querySelector('#weighting-toggle').addEventListener('change', applyEncodingFeatureStyles);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -212,6 +213,7 @@ function runPrediction(e) {
         updatePredictionDisplay(input.label);
         shiftToggles(activations[1]); // Update toggle states based on activations
         handleToggleChange();
+        applyEncodingFeatureStyles();
     });
 }
 
@@ -360,6 +362,20 @@ async function drawMaxSimilarity() {
 
         resolve();
     }, 0));
+}
+
+export function applyEncodingFeatureStyles(){
+    const features = document.querySelectorAll('#encoding_features img');
+    const style = document.querySelector("#weighting-toggle").checked;
+    const activations = activationsAccessor()[0];
+    const maxActivation = Math.max(...activations);
+    features.forEach((img, i) => {
+        if (style && maxActivation > 0) {
+            img.style.opacity = (activations[i] / maxActivation).toFixed(3);
+        } else {
+            img.style.opacity = "1";
+        }
+    });
 }
 
 export function showHideInformation() {
