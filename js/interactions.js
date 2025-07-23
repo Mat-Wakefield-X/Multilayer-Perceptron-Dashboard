@@ -123,11 +123,12 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
     drawInputSaliency();
 });
 
-document.querySelector('#info-toggle').addEventListener('change', function (e) {
-    const info = e.target.checked;
-    const informationElements = document.querySelectorAll('.information');
-    informationElements.forEach(element => element.style.display = info ? "block" : "none");
+document.querySelector('#max-sim-toggle').addEventListener('change', function (e) {
+    showHideMaxSim();
+    if(e.target.checked) drawMaxSimilarity();
 });
+
+document.querySelector('#info-toggle').addEventListener('change', showHideInformation);
 
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
@@ -148,7 +149,8 @@ async function handleToggleChange() {
     await sleep(0);
     drawInputSaliency();
 
-    await drawMaxSimilarity();
+    const maxSim = document.querySelector('#max-sim-toggle').checked;
+    if(maxSim) await drawMaxSimilarity();
 }
 
 
@@ -166,6 +168,8 @@ function runPrediction(e) {
     drawInputImage(input, 2, svg); // Regenerate input image
 
     document.getElementById('input-number-label').innerText = input.label; // Update label display
+    const maxSim = document.querySelector('#max-sim-toggle').checked;
+
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
         updatePredictionDisplay(input.label, prediction, activations);
@@ -173,7 +177,7 @@ function runPrediction(e) {
         generateTopDown(activations);
         drawDecodings();
         drawInputSaliency();
-        // drawMaxSimilarity();
+        if(maxSim) drawMaxSimilarity();
     });
 }
 
@@ -326,4 +330,23 @@ async function drawMaxSimilarity() {
 
         resolve();
     }, 0));
+}
+
+export function showHideInformation() {
+    const info = document.querySelector('#info-toggle').checked;
+    const informationElements = document.querySelectorAll('.information');
+    informationElements.forEach(element => element.style.display = info ? "block" : "none");
+}
+
+export function showHideMaxSim(){
+    const maxSim = document.querySelector('#max-sim-toggle').checked;
+    document.querySelector('#max-sim-message').style.display = maxSim ? 'none' : 'block';
+    document.querySelectorAll('[id^="max-"][id$="-svg"]')
+        .forEach(svg => {
+            svg.style.display = maxSim ? 'block' : 'none';
+        })
+    document.querySelectorAll('.max-sim')
+        .forEach(spinner => {
+            spinner.style.display = 'none';
+        });
 }

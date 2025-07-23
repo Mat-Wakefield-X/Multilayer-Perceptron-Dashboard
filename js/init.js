@@ -1,5 +1,5 @@
 import { displayEncodingSVGs } from './draw_weights.js';
-import { tooltipEventListener, encodeClickEventListener } from './interactions.js';
+import { tooltipEventListener, encodeClickEventListener, showHideMaxSim, showHideInformation } from './interactions.js';
 import { extractMnistLabel, extractMnistImage, getNumMnistImages } from './mnist.js';
 
 console.log('Loading TensorFlow.js library...');
@@ -45,6 +45,8 @@ export const mnistTrainImagesBuffer = await fetchArrayBufferLocal('data/train-im
 export const mnistTrainLabelsBuffer = await fetchArrayBufferLocal('data/train-labels.idx1-ubyte');
 export const mnistTrainSize = getNumMnistImages(mnistTrainImagesBuffer);
 
+showHideMaxSim();
+showHideInformation();
 document.querySelector("#input-number").dispatchEvent(new Event('change')); // Trigger change event to initialize input image
 
 console.log('Model loaded successfully:', model);

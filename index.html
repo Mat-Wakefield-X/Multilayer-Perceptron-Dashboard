@@ -168,7 +168,12 @@
                         <input type="checkbox" id="norms-toggle" checked>
                         <span class="slider round"></span>
                     </label>
-                    <span>Global</span>
+                    <span style="margin-right: 2em;">Global</span>
+                    <span style="font-weight: bold;">Max Similarity: </span>
+                    <label class="switch">
+                        <input type="checkbox" id="max-sim-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
                 </div>
                 <div class="grid-table-output-4">
                     <span class="top-cell" style="font-weight: bold;">Positive</span>
@@ -200,6 +205,7 @@
                         <svg id="max-positive-svg" width="112px" height="168px" viewbox="0 0 112 168"></svg>
                     </span>
                     <span class="bottom-cell">
+                        <em id="max-sim-message" style="display: none;">Disabled</em>
                         <div style="height: 168px;"></div>
                         <span class="spinner max-sim"></span>
                         <svg id="max-negative-svg" width="112px" height="168px" viewbox="0 0 112 168"></svg>
