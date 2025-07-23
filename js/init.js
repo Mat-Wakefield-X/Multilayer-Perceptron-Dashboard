@@ -105,7 +105,7 @@ export function activationsAccessor(activations) {
   }
 }
 
-export function getmodelPredictions() {
+export function getModelPredictions() {
   return modelPredictions;
 }
 

@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getmodelPredictions } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -151,6 +151,11 @@ document.querySelectorAll('.output-value').forEach(input => {
         if(e.key === "Enter") handleOutpuValueChange(this);
     })
 });
+document.querySelector("#reset-output").addEventListener("click", function () {
+    updatePredictions(null, -1);
+    updatePredictionDisplay(input.label);
+    handleToggleChange();
+});
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -202,13 +207,15 @@ function runPrediction(e) {
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
         updatePredictions(prediction, -1);
-        updatePredictionDisplay(input.label, prediction, activations);
+        updatePredictionDisplay(input.label);
         shiftToggles(activations[1]); // Update toggle states based on activations
         handleToggleChange();
     });
 }
 
-function updatePredictionDisplay(label, prediction, activations) {
+function updatePredictionDisplay(label) {
+    const prediction = getModelPredictions().prediction;
+    const activations = activationsAccessor();
     const predictionLabel = `${prediction} ${(prediction === label) ? '✅' : '❌'}`;
     document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
     for (const [i, value] of activations[1].entries()) {
@@ -259,7 +266,7 @@ function generateTopDown() {
 function getModulations() {
     const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
     // Determine modulation values for encoding features based on selected outputs.
-    const modelActivations = getmodelPredictions().activations;
+    const modelActivations = getModelPredictions().activations;
     return checkedStates.map((checked, i) => {
         const select = checked ? 1 : 0;
         const y = modelActivations[i];
