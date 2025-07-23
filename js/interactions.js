@@ -1,6 +1,6 @@
 import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
-import { generateImage, getMaxSimilarity } from "./generate_images.js";
+import { generateImage, getMaxSimilarity as findMaxSimilarity, computeAggregateInstance } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
 
 /*
@@ -400,13 +400,21 @@ async function drawMaxSimilarity() {
     await new Promise(resolve => setTimeout(() => {
         const decodings = decodingsAccessor();
 
-        const positive = getMaxSimilarity(decodings[0], 6);
-        const negative = getMaxSimilarity(decodings[1], 6);
-        const hyperplane = getMaxSimilarity(decodings[2], 6);
+        const positive = findMaxSimilarity(decodings[0], 6);
+        const negative = findMaxSimilarity(decodings[1], 6);
+        const hyperplane = findMaxSimilarity(decodings[2], 6);
 
         drawInstancesGroup(positive, 2, svgs[0]);
         drawInstancesGroup(negative, 2, svgs[1]);
         drawInstancesGroup(hyperplane, 2, svgs[2]);
+
+        const positiveAggregate = computeAggregateInstance(positive);
+        const negativeAggregate = computeAggregateInstance(negative);
+        const hyperplaneAggregate = computeAggregateInstance(hyperplane);
+
+        drawInputImage(positiveAggregate, 4, svgs[3]);
+        drawInputImage(negativeAggregate, 4, svgs[4]);
+        drawInputImage(hyperplaneAggregate, 4, svgs[5]);
 
         // Hide loading spinners
         document.querySelectorAll(".spinner.max-sim").forEach(spinner => {
@@ -418,7 +426,7 @@ async function drawMaxSimilarity() {
         });
 
         resolve();
-    }, 0));
+    }, 1));
 }
 
 export function showHideInformation() {
@@ -429,7 +437,9 @@ export function showHideInformation() {
 
 export function showHideMaxSim(){
     const maxSim = document.querySelector('#max-sim-toggle').checked;
-    document.querySelector('#max-sim-message').style.display = maxSim ? 'none' : 'block';
+    document.querySelectorAll('.max-sim-message').forEach(message => {
+        message.style.display = maxSim ? 'none' : 'block';
+    });
     document.querySelectorAll('[id^="max-"][id$="-svg"]')
         .forEach(svg => {
             svg.style.display = 'none';

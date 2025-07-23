@@ -69,16 +69,16 @@
                     <span class="top-cell" id="output-7-cell"><input type="text" maxlength="6"  id="output-7" class="output-value"></input></span>
                     <span class="top-cell" id="output-8-cell"><input type="text" maxlength="6"  id="output-8" class="output-value"></input></span>
                     <span class="top-cell" id="output-9-cell"><input type="text" maxlength="6"  id="output-9" class="output-value"></input></span>
-                    <label for="output-0" class="middle-cell">0</label>
-                    <label for="output-1" class="middle-cell">1</label>
-                    <label for="output-2" class="middle-cell">2</label>
-                    <label for="output-3" class="middle-cell">3</label>
-                    <label for="output-4" class="middle-cell">4</label>
-                    <label for="output-5" class="middle-cell">5</label>
-                    <label for="output-6" class="middle-cell">6</label>
-                    <label for="output-7" class="middle-cell">7</label>
-                    <label for="output-8" class="middle-cell">8</label>
-                    <label for="output-9" class="middle-cell">9</label>
+                    <label for="output-0" class="middle-cell"><strong>0</strong></label>
+                    <label for="output-1" class="middle-cell"><strong>1</strong></label>
+                    <label for="output-2" class="middle-cell"><strong>2</strong></label>
+                    <label for="output-3" class="middle-cell"><strong>3</strong></label>
+                    <label for="output-4" class="middle-cell"><strong>4</strong></label>
+                    <label for="output-5" class="middle-cell"><strong>5</strong></label>
+                    <label for="output-6" class="middle-cell"><strong>6</strong></label>
+                    <label for="output-7" class="middle-cell"><strong>7</strong></label>
+                    <label for="output-8" class="middle-cell"><strong>8</strong></label>
+                    <label for="output-9" class="middle-cell"><strong>9</strong></label>
                     <div class="bottom-cell">
                         <label class="switch">
                             <input type="checkbox" id="show-activations-0" class="top-down-toggle" checked>
@@ -201,25 +201,37 @@
                         <svg id="decoded-hyperplane-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     </span>
                     <span class="middle-cell" style="font-weight: bold;">Decoding</span>
-                    <span class="bottom-cell">
+                    <span class="middle-cell">
                         <span class="spinner max-sim"></span>
                         <svg id="max-positive-svg" width="112px" height="168px" viewbox="0 0 112 168"></svg>
                     </span>
-                    <span class="bottom-cell">
-                        <em id="max-sim-message" style="display: none;">Disabled</em>
+                    <span class="middle-cell">
+                        <em class="max-sim-message" style="display: none;">Disabled</em>
                         <div style="height: 168px;"></div>
                         <span class="spinner max-sim"></span>
                         <svg id="max-negative-svg" width="112px" height="168px" viewbox="0 0 112 168"></svg>
                     </span>
-                    <span class="bottom-cell">
+                    <span class="middle-cell">
                         <span class="spinner max-sim"></span>
                         <svg id="max-hyperplane-svg" width="112px" height="168px" viewbox="0 0 112 168"></svg>
                     </span>
-                    <span class="bottom-cell" style="font-weight: bold;">Max Similarity</span>
+                    <span class="middle-cell" style="font-weight: bold;">Max Similarity</span>
+                    <span class="bottom-cell">
+                        <span class="spinner max-sim"></span>
+                        <svg id="max-positive-aggregate-svg" width="112px" height="112px" viewbox="0 0 112 112"></svg>
+                    </span>
+                    <span class="bottom-cell">
+                        <em class="max-sim-message" style="display: none;">Disabled</em>
+                        <div style="height: 168px;"></div>
+                        <span class="spinner max-sim"></span>
+                        <svg id="max-negative-aggregate-svg" width="112px" height="112px" viewbox="0 0 112 112"></svg>
+                    </span>
+                    <span class="bottom-cell">
+                        <span class="spinner max-sim"></span>
+                        <svg id="max-hyperplane-aggregate-svg" width="112px" height="112px" viewbox="0 0 112 112"></svg>
+                    </span>
+                    <span class="bottom-cell" style="font-weight: bold;">Max Sim<br/>Aggregate</span>
                 </div>
-            </div>
-            <div id="histogram" class="dashboard-area">
-                <h3>Features Histogram</h3>
             </div>
         </section>
         <section id="inspect" class="section">

@@ -402,7 +402,6 @@ body {
     align-items: center;
 }
 .middle-cell {
-    font-weight: bolder;
     display: flex;
     border-left: 1px solid #333;
     border-right: 1px solid #333;

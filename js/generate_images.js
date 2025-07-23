@@ -40,3 +40,27 @@ export function getMaxSimilarity(decoding, k) {
     }));
     return topK;
 }
+
+export function computeAggregateInstance(maxSims) {
+    const length = maxSims[0].image.length;
+    const aggregated = new Array(length).fill(0);
+    let totalWeight = 0;
+
+    for (const sim of maxSims) {
+        totalWeight += sim.similarity;
+        for (let i = 0; i < length; i++) {
+            aggregated[i] += sim.image[i] * sim.similarity;
+        }
+    }
+
+    // Optionally normalize by total weight
+    if (totalWeight !== 0) {
+        for (let i = 0; i < length; i++) {
+            aggregated[i] /= totalWeight;
+        }
+    }
+
+    return {
+        image: aggregated
+    }
+}
