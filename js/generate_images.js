@@ -60,7 +60,5 @@ export function computeAggregateInstance(maxSims) {
         }
     }
 
-    return {
-        image: aggregated
-    }
+    return aggregated;
 }

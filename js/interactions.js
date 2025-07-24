@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor, manualAggregateAccessor, salienciesAccessor, maxSimAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity as findMaxSimilarity, computeAggregateInstance } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -105,31 +105,40 @@ function selectEncodingFeature(wrapper, img, num) {
     const visible = !weightings || (weightings && img.classList.contains('visible'));
     const selected = wrapper.classList.contains('selected');
     if(visible || selected) {
-        if(!nodeSelections.includes(num)) {
+        selectNodes(num, wrapper);
+        const images = generateManualImages();
+
+        highlightImage(wrapper); // Update image border based on selection
+        generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', images.aggregate); // Regenerate aggregate image
+        generateAggregateImage(5, document.querySelector('#manual-saliency-svg'), 'manual-saliency', images.saliency);
+    }
+}
+
+function selectNodes(num, wrapper) {
+    if(!nodeSelections.includes(num)) {
         nodeSelections.push(num);
         wrapper.classList.add('selected'); 
-        } else {
-            const filtered = nodeSelections.filter(item => item !== num);
-            nodeSelections.length = 0; // Clear the array
-            nodeSelections.push(...filtered);
-            wrapper.classList.remove('selected');
-        }
-        highlightImage(wrapper); // Update image border based on selection
-        const data = generateImage(nodeSelections);
-        generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', data); // Regenerate aggregate image
-        drawManualSaliency(data);
+    } else {
+        const filtered = nodeSelections.filter(item => item !== num);
+        nodeSelections.length = 0; // Clear the array
+        nodeSelections.push(...filtered);
+        wrapper.classList.remove('selected');
     }
 }
 
-function drawManualSaliency(data) {
+function generateManualImages() {
+    const aggregate = generateImage(nodeSelections);
     const saliency = {
-        image: computeInputSaliency(data),
-        min: data.min,
-        max: data.max
+        image: computeInputSaliency(aggregate),
+        min: aggregate.min,
+        max: aggregate.max
     }
-    generateAggregateImage(5, document.querySelector('#manual-saliency-svg'), 'manual-saliency', saliency);
+    manualAggregateAccessor(aggregate, saliency);
+    return {
+        aggregate: aggregate,
+        saliency: saliency
+    }
 }
-
 
 function highlightImage(img) {
     if(img.classList.contains('selected')) {
@@ -404,6 +413,8 @@ function drawInputSaliency() {
         min: decoding.min,
         max: decoding.max
     }));
+    salienciesAccessor(saliencies);
+
     generateAggregateImage(5, document.querySelector('#saliency-positive-svg'), 'positive-saliency', saliencies[0], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-negative-svg'), 'negative-saliency', saliencies[1], useGlobalNorms);
     generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
@@ -428,23 +439,10 @@ async function drawMaxSimilarity() {
     });
 
     await new Promise(resolve => setTimeout(() => {
-        const decodings = decodingsAccessor();
+        const data = computeMaxSims();
+        maxSimAccessor(data);
 
-        const positive = findMaxSimilarity(decodings[0], 6);
-        const negative = findMaxSimilarity(decodings[1], 6);
-        const hyperplane = findMaxSimilarity(decodings[2], 6);
-
-        drawInstancesGroup(positive, 2, svgs[0]);
-        drawInstancesGroup(negative, 2, svgs[1]);
-        drawInstancesGroup(hyperplane, 2, svgs[2]);
-
-        const positiveAggregate = computeAggregateInstance(positive);
-        const negativeAggregate = computeAggregateInstance(negative);
-        const hyperplaneAggregate = computeAggregateInstance(hyperplane);
-
-        drawInputImage(positiveAggregate, 4, svgs[3]);
-        drawInputImage(negativeAggregate, 4, svgs[4]);
-        drawInputImage(hyperplaneAggregate, 4, svgs[5]);
+        drawMaxSimImages(svgs, data);
 
         // Hide loading spinners
         document.querySelectorAll(".spinner.max-sim").forEach(spinner => {
@@ -457,6 +455,35 @@ async function drawMaxSimilarity() {
 
         resolve();
     }, 1));
+}
+
+function computeMaxSims() {
+    const decodings = decodingsAccessor();
+
+    const positive = computeMaxSimData(decodings[0], 6)
+    const negative = computeMaxSimData(decodings[1], 6);
+    const hyperplane = computeMaxSimData(decodings[2], 6);
+
+    return [positive, negative, hyperplane];
+}
+
+export function computeMaxSimData(decoding, k) {
+    const images = findMaxSimilarity(decoding, k);
+    const aggregate = computeAggregateInstance(images);
+    return {
+        instances: images,
+        image: aggregate
+    }
+}
+
+export function drawMaxSimImages(svgs, data) {
+    drawInstancesGroup(data[0].instances, 2, svgs[0]);
+    drawInstancesGroup(data[1].instances, 2, svgs[1]);
+    drawInstancesGroup(data[2].instances, 2, svgs[2]);
+
+    drawInputImage(data[0], 4, svgs[3]);
+    drawInputImage(data[1], 4, svgs[4]);
+    drawInputImage(data[2], 4, svgs[5]);
 }
 
 export function showHideInformation() {

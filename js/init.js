@@ -34,6 +34,12 @@ const input = {
   image: null
 }
 const decodes = [];
+const saliencies = [];
+const maxImages = [];
+const manualAggregate = {
+  aggregate: null,
+  saliency: null
+}
 
 // --- MNIST IDX file loading from /data ---
 export const mnistTestImagesBuffer = await fetchArrayBufferLocal('data/t10k-images.idx3-ubyte').then((data) => {
@@ -82,6 +88,7 @@ export function loadInstance(index) {
   input.index = index;
   input.label = extractMnistLabel(mnistTestLabelsBuffer, index);
   input.image = extractMnistImage(mnistTestImagesBuffer, index);
+  console.log("Loaded Input:", input);
 }
 
 export function getInstance() {
@@ -147,7 +154,38 @@ export function decodingsAccessor(decodings){
   if(decodings !== undefined) {
     decodes.length = 0;
     decodes.push(...decodings);
+    console.log("Setting Network Aggregates:", decodes);
   } else {
     return decodes;
+  }
+}
+
+export function salienciesAccessor(images) {
+  if(images !== undefined) {
+    saliencies.length = 0;
+    saliencies.push(...images);
+    console.log("Setting Network Saliencies:", saliencies);
+  } else {
+    return saliencies;
+  }
+}
+
+export function maxSimAccessor(images) {
+  if(images !== undefined) {
+    maxImages.length = 0;
+    maxImages.push(...images);
+    console.log("Setting Max Sim:", maxImages);
+  } else {
+    return maxImages;
+  }
+}
+
+export function manualAggregateAccessor(aggregate, saliency) {
+  if(aggregate || saliency) {
+    if(aggregate) manualAggregate.aggregate = aggregate;
+    if(saliency) manualAggregate.saliency = saliency;
+    console.log("Setting Manual Aggregates:", manualAggregate);
+  } else {
+    return manualAggregate;
   }
 }
