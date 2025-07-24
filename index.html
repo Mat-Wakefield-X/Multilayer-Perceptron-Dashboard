@@ -285,32 +285,48 @@
                     <svg id="manual-saliency-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     <button id="reset-manual" class="modern-btn" style="grid-column: span 2; width: fit-content;">Reset</button>
                 </div>
-                <div class="control-box">
+                <div id="information" class="aside-area information">
+                    <p>Click '+' to save generated images to disk or the stash area below.</p>
+                    <p>Click '⛶' to expand the stash area.</p>
+                </div>
+                <div id="stash-aside" class="control-box">
                     <strong style="justify-self: left;">Stash Area</strong>
                     <span style="justify-self: right;">
                         <button id="stash-add" class="modern-btn" style="width: 45px; height: 45px; font-size: 2em; padding: 0;">+</button>
                         <button id="stash-expand" class="modern-btn" style="width: 45px; height: 45px; font-size: 1.9em; padding: 0;">⛶</button>
                     </span>
+                    <div class="image-container small" style="grid-column: span 2;"></div>
                 </div>
             </div>
         </section>
         <section id="pop-over">
             <div id="save-area" class="pop-over-box">
                 <div style="display: block; width: 100%;">
-                    <button id="save-exit" class="modern-btn exit" style="float: right;">❌</button>
+                    <button id="save-exit" class="modern-btn exit">❌</button>
                     <h2>Save Images</h2>
                 </div>
-                <span style="margin: 1em;"><em>Click on images you want to save or stash...</em></span>
-                <br>
+                <span style="margin: 1em;" class="information"><em>Click on images you want to save or stash...</em></span>
                 <div class="image-container"></div>
 
-                <span>
+                <span style="margin-top: 1em;">
                     <button id="save-stash" class="modern-btn" style="width: 100px; padding: 0.5rem;">Stash</button>
                     <button id="save-disk" class="modern-btn" style="width: 100px; padding: 0.5rem;">Download</button>
                 </span>
             </div>
             <div id="stash" class="pop-over-box">
-                <h2 style="grid-column: span 2;">Stash</h2>
+                <div style="display: block; width: 100%;">
+                    <button id="stash-exit" class="modern-btn exit">❌</button>
+                    <h2>Stashed Images</h2>
+                </div>
+                <div class="image-container"></div>
+
+                <div style="display: block; width: 100%; margin-top: 1em;">
+                    <span>
+                        <button id="remove-stash" class="modern-btn" style="width: 100px; padding: 0.5rem;">Remove</button>
+                        <button id="save-disk-stash" class="modern-btn" style="width: 100px; padding: 0.5rem;">Download</button>
+                    </span>
+                    <button id="clear-stash" class="modern-btn exit" style="width: 100px; padding: 0.5rem;">Clear</button>
+                </div>
             </div>
         </section>
     </main>

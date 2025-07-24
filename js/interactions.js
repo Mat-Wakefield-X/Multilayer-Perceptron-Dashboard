@@ -264,8 +264,13 @@ document.querySelector("#reset-output").addEventListener("click", function () {
     handleToggleChange();
 });
 
-document.querySelector("#stash-add").addEventListener('click', openSaveArea);
+document.querySelector("#stash-add").addEventListener('click', () => openPopOver(true));
+document.querySelector("#stash-expand").addEventListener('click', () => openPopOver(false));
 document.querySelector('#save-exit').addEventListener('click', exitPopOver);
+document.querySelector('#stash-exit').addEventListener('click', exitPopOver);
+document.querySelector("#save-stash").addEventListener('click', stashImages);
+document.querySelector('#clear-stash').addEventListener('click', clearStash);
+document.querySelector('#remove-stash').addEventListener('click', removeFromStash);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -310,12 +315,12 @@ function runPrediction(e) {
     }
     index -= 1; // Convert to 0-based index
     
-    loadInput(index);
+    const label = loadInput(index);
 
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
         updatePredictions(prediction, -1);
-        updatePredictionDisplay(input.label);
+        updatePredictionDisplay(label);
         shiftToggles(activations[1]); // Update toggle states based on activations
         handleToggleChange();
         applyEncodingFeatureStyles();
@@ -332,6 +337,7 @@ function loadInput(index) {
     populateSaveImages(svg);
 
     document.getElementById('input-number-label').innerText = input.label; // Update label display
+    return input.label;
 }
 
 function updatePredictionDisplay(label) {
@@ -556,8 +562,9 @@ export function showHideMaxSim(){
 function populateSaveImages(svg, saveArea=true) {
     const container = document.querySelector(`#${saveArea ? 'save-area' : 'stash'} .image-container`);
     const svgs = container.querySelectorAll('svg');
-    const existingSvg = Array.from(svgs).find(existingSvg => existingSvg.id === svg.id);
-    const saveImageElement = createSaveImageHTML(svg.cloneNode(true));
+    const cloned = svg.cloneNode(true);
+    const saveImageElement = createSaveImageHTML(cloned);
+    const existingSvg = Array.from(svgs).find(existingSvg => existingSvg.id === cloned.id);
     if (existingSvg) {
         // Replace the parent .save-image container
         const parent = existingSvg.closest('.save-image');
@@ -597,9 +604,51 @@ function addEventListenerToSaveImage(image) {
     });
 }
 
-function openSaveArea() {
+function stashImages() {
+    const selected = document.querySelectorAll('.save-image[data-selected="true"]');
+    const stash1 = document.querySelector('#stash .image-container');
+    const stash2 = document.querySelector('#stash-aside .image-container');
+    
+    selected.forEach(image => {
+        const clone = image.cloneNode(true);
+        clone.removeAttribute('class');
+        clone.classList.add('stash-image');
+        stash1.appendChild(clone);
+        addEventListenerToSaveImage(clone);
+        
+        const clone2 = clone.cloneNode(true);
+        stash2.append(clone2);
+    });
+
+    exitPopOver();
+}
+
+function removeFromStash() {
+    const stash = document.querySelector('#stash .image-container');
+    
+    const removed = stash.querySelectorAll('.stash-image[data-selected="true"]');
+    removed.forEach(image => image.remove());
+    
+    const stash2 = document.querySelector('#stash-aside .image-container');
+    stash2.innerHTML = '';
+
+    const images = stash.querySelectorAll(".stash-image");
+    images.forEach(image => {
+        stash2.append(image.cloneNode(true));
+    })
+}
+
+function clearStash() {
+    document.querySelector('#stash .image-container').innerHTML = '';
+    document.querySelector('#stash-aside .image-container').innerHTML = '';
+    exitPopOver();
+}
+
+function openPopOver(saveArea) {
     document.querySelector('#pop-over').classList.add('active');
-    document.querySelector('#save-area').classList.add('visible');
+    const id = `#${saveArea ? 'save-area' : 'stash'}`;
+    document.querySelector(id).classList.add('visible');
+    document.body.classList.add('no-scroll');
 }
 
 function exitPopOver() {
@@ -612,8 +661,15 @@ function exitPopOver() {
             image.classList.remove('selected');
         })
 
+    stashArea.querySelectorAll('.stash-image')
+        .forEach(image => {
+            image.setAttribute('data-selected', false);
+            image.classList.remove('selected');
+        })
+
     document.querySelector('#pop-over').classList.remove('active');
 
     saveArea.classList.remove('visible');
     stashArea.classList.remove('visible');
+    document.body.classList.remove('no-scroll');
 }
