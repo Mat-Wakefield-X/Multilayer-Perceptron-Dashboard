@@ -281,8 +281,8 @@
                 <div class="control-box">
                     <strong>Manual Selection</strong>
                     <strong>Input Saliency</strong>
-                    <svg id="manual-svg" viewbox="0 0 140 140" style="max-width: 140px"></svg>
-                    <svg id="manual-saliency-svg" viewbox="0 0 140 140" style="max-width: 140px"></svg>
+                    <svg id="manual-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
+                    <svg id="manual-saliency-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
                     <button id="reset-manual" class="modern-btn" style="grid-column: span 2; width: fit-content;">Reset</button>
                 </div>
                 <div class="control-box">
@@ -292,6 +292,17 @@
                         <button id="stash-expand" class="modern-btn" style="width: 45px; height: 45px; font-size: 1.9em; padding: 0;">⛶</button>
                     </span>
                 </div>
+            </div>
+        </section>
+        <section id="pop-over">
+            <div id="save-area" class="pop-over-box">
+                <h2 style="grid-column: span 2;">Save Images</h2>
+                <div class="image-container"></div>
+                <br>
+                <span style="margin: 1em;"><em>Click on images you want to save or stash...</em></span>
+            </div>
+            <div id="stash" class="pop-over-box">
+                <h2 style="grid-column: span 2;">Stash</h2>
             </div>
         </section>
     </main>

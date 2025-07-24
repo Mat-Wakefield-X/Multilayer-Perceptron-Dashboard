@@ -109,8 +109,15 @@ function selectEncodingFeature(wrapper, img, num) {
         const images = generateManualImages();
 
         highlightImage(wrapper); // Update image border based on selection
-        generateAggregateImage(5, document.querySelector('#manual-svg'), 'manual-aggregate', images.aggregate); // Regenerate aggregate image
-        generateAggregateImage(5, document.querySelector('#manual-saliency-svg'), 'manual-saliency', images.saliency);
+
+        const manualSVG = document.querySelector('#manual-svg');
+        const saliencySVG = document.querySelector('#manual-saliency-svg');
+
+        generateAggregateImage(5, manualSVG, 'manual-aggregate', images.aggregate); // Regenerate aggregate image
+        generateAggregateImage(5, saliencySVG, 'manual-saliency', images.saliency);
+
+        populateSaveImages(manualSVG);
+        populateSaveImages(saliencySVG);
     }
 }
 
@@ -172,15 +179,12 @@ export function applyEncodingFeatureStyles(){
             const img = wrapper.querySelector("img");
             const tint = wrapper.querySelector(".tinted");
             if (style) {
-                const value = activations[i];
-                const normalised = Math.abs(value) / maxActivation;
-                const scaled = 0.05 + (normalised * 0.95);
-                const opacity = Math.min(scaled, 1).toFixed(3);
-                img.style.opacity = (value == 0) ? 0 : opacity;
-                const positive = value > 0;
-                const colour = `rgba(${positive ? 0 : 125}, ${positive ? 125 : 0}, 0, ${opacity})`;
-                tint.style.backgroundColor = (value == 0 || !modulation) ? null : colour;
-                if(value == 0) {
+                const values = computeOpacityStyles(activations[i], maxActivation, modulation);
+            
+                img.style.opacity = values.opacity;
+                tint.style.backgroundColor = values.tint;
+
+                if(values.opacity == 0) {
                     img.classList.remove('visible');
                 } else {
                     img.classList.add('visible');
@@ -191,6 +195,20 @@ export function applyEncodingFeatureStyles(){
                 img.classList.add('visible');
             }
         });
+    }
+}
+
+function computeOpacityStyles(value, maxActivation, modulation) {
+    const normalised = Math.abs(value) / maxActivation;
+    const scaled = 0.05 + (normalised * 0.95);
+    const opacity = Math.min(scaled, 1).toFixed(3);
+
+    const positive = value > 0;
+    const colour = `rgba(${positive ? 0 : 125}, ${positive ? 125 : 0}, 0, ${opacity})`;
+
+    return {
+        opacity: (value == 0) ? 0 : opacity,
+        tint : (value == 0 || !modulation) ? null : colour
     }
 }
 
@@ -246,6 +264,8 @@ document.querySelector("#reset-output").addEventListener("click", function () {
     handleToggleChange();
 });
 
+document.querySelector("#stash-add").addEventListener('click', openSaveArea);
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -288,13 +308,8 @@ function runPrediction(e) {
         document.getElementById('input-number').value = index;
     }
     index -= 1; // Convert to 0-based index
-    loadInstance(index);
-    const input = getInstance();
-
-    const svg = document.querySelector('#input-svg');
-    drawInputImage(input, 2, svg); // Regenerate input image
-
-    document.getElementById('input-number-label').innerText = input.label; // Update label display
+    
+    loadInput(index);
 
     runMNISTInference(index).then(({ prediction, activations }) => { 
         activationsAccessor(activations); // Store activations globally
@@ -304,6 +319,18 @@ function runPrediction(e) {
         handleToggleChange();
         applyEncodingFeatureStyles();
     });
+}
+
+function loadInput(index) {
+    loadInstance(index);
+    const input = getInstance();
+
+    const svg = document.querySelector('#input-svg');
+    drawInputImage(input, 2, svg); // Regenerate input image
+
+    populateSaveImages(svg);
+
+    document.getElementById('input-number-label').innerText = input.label; // Update label display
 }
 
 function updatePredictionDisplay(label) {
@@ -399,10 +426,18 @@ function setGlobalNorms(images) {
 function drawDecodings() {
     const useGlobalNorms = normsToggleAccessor();
     const decodings = decodingsAccessor();
-    // Update aggregate images in the UI.
-    generateAggregateImage(5, document.querySelector('#decoded-positive-svg'), 'positive-aggregate', decodings[0], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-negative-svg'), 'negative-aggregate', decodings[1], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#decoded-hyperplane-svg'), 'hyperplane-aggregate', decodings[2], useGlobalNorms);
+
+    const posSVG = document.querySelector('#decoded-positive-svg');
+    const negSVG = document.querySelector('#decoded-negative-svg');
+    const hyperSVG = document.querySelector('#decoded-hyperplane-svg');
+
+    generateAggregateImage(5, posSVG, 'positive-aggregate', decodings[0], useGlobalNorms);
+    generateAggregateImage(5, negSVG, 'negative-aggregate', decodings[1], useGlobalNorms);
+    generateAggregateImage(5, hyperSVG, 'hyperplane-aggregate', decodings[2], useGlobalNorms);
+
+    populateSaveImages(posSVG);
+    populateSaveImages(negSVG);
+    populateSaveImages(hyperSVG);
 }
 
 function drawInputSaliency() {
@@ -415,9 +450,17 @@ function drawInputSaliency() {
     }));
     salienciesAccessor(saliencies);
 
-    generateAggregateImage(5, document.querySelector('#saliency-positive-svg'), 'positive-saliency', saliencies[0], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#saliency-negative-svg'), 'negative-saliency', saliencies[1], useGlobalNorms);
-    generateAggregateImage(5, document.querySelector('#saliency-hyperplane-svg'), 'hyperplane-saliency', saliencies[2], useGlobalNorms);
+    const posSVG = document.querySelector('#saliency-positive-svg');
+    const negSVG = document.querySelector('#saliency-negative-svg');
+    const hyperSVG = document.querySelector('#saliency-hyperplane-svg');
+
+    generateAggregateImage(5, posSVG, 'positive-saliency', saliencies[0], useGlobalNorms);
+    generateAggregateImage(5, negSVG, 'negative-saliency', saliencies[1], useGlobalNorms);
+    generateAggregateImage(5, hyperSVG, 'hyperplane-saliency', saliencies[2], useGlobalNorms);
+
+    populateSaveImages(posSVG);
+    populateSaveImages(negSVG);
+    populateSaveImages(hyperSVG);
 }
 
 function computeInputSaliency(comparison) {
@@ -484,6 +527,8 @@ export function drawMaxSimImages(svgs, data) {
     drawInputImage(data[0], 4, svgs[3]);
     drawInputImage(data[1], 4, svgs[4]);
     drawInputImage(data[2], 4, svgs[5]);
+
+    svgs.forEach(svg => populateSaveImages(svg));
 }
 
 export function showHideInformation() {
@@ -505,4 +550,52 @@ export function showHideMaxSim(){
         .forEach(spinner => {
             spinner.style.display = maxSim ? 'block' : "none";
         });
+}
+
+function populateSaveImages(svg, saveArea=true) {
+    const container = document.querySelector(`#${saveArea ? 'save-area' : 'stash'} .image-container`);
+    const svgs = container.querySelectorAll('svg');
+    const existingSvg = Array.from(svgs).find(existingSvg => existingSvg.id === svg.id);
+    const saveImageElement = createSaveImageHTML(svg.cloneNode(true));
+    if (existingSvg) {
+        // Replace the parent .save-image container
+        const parent = existingSvg.closest('.save-image');
+        if (parent) {
+            container.replaceChild(saveImageElement, parent);
+        }
+    } else {
+        container.appendChild(saveImageElement);
+    }
+}
+
+function createSaveImageHTML(svg) {
+    const container = document.createElement('div');
+    container.classList.add('save-image');
+    container.setAttribute('data-selected', 'false');
+
+    const text = document.createElement('span');
+    text.textContent = svg.id.replace(/-/g, ' ').replace(/svg/i, '').trim();
+    svg.id = svg.id.replace(/svg/i, 'save');
+
+    svg.removeAttribute('class');
+    svg.removeAttribute('style');
+
+    container.appendChild(svg);
+    container.appendChild(text);
+
+    addEventListenerToSaveImage(container);
+
+    return container;
+}
+
+function addEventListenerToSaveImage(image) {
+    image.addEventListener('click', () => {
+        const isSelected = image.classList.toggle('selected');
+        image.setAttribute('data-selected', isSelected);
+    });
+}
+
+function openSaveArea() {
+    document.querySelector('#pop-over').classList.add('active');
+    document.querySelector('#save-area').classList.add('visible');
 }

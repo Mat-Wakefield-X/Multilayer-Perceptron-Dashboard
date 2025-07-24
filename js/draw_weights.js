@@ -88,7 +88,6 @@ export function generateAggregateImage(size, svg, id, data = null, globalNorms =
         const maxAbs = Math.max(Math.abs(min), Math.abs(max));
         const normalized = data.image.map(v => {
             if (maxAbs === 0) return 0; // Avoid division by zero
-            // return ((v - min) / (max - min)) * 2 - 1;
             return v / maxAbs;
         });
         for (let i = 0; i < 784; i++) {

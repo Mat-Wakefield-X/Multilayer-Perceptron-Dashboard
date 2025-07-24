@@ -72,8 +72,6 @@ body {
 .section.active {
     display: block;
 }
-
-
 /* Side-by-side .subsection inside #controls */
 #controls {
     display: flex;
@@ -83,7 +81,6 @@ body {
     justify-content: flex-start;
     gap: 0;
 }
-
 /* On mobile, stack subsections vertically */
 @media (max-width: 700px) {
     #controls {
@@ -129,25 +126,6 @@ body {
     margin-bottom: 1.2rem;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* @media (max-width: 700px) {
-    .main-content {
-        padding: 1rem;
-    }
-    .section {
-        padding: 1rem;
-    }
-    .title-bar-main {
-        font-size: 1.1rem;
-        padding: 0.7rem 1rem 0.3rem 1rem;
-    }
-    .tab-bar {
-        padding: 0.3rem 1rem;
-    }
-} */
 
 #encoding-tooltip {
     background: #fff;
@@ -480,4 +458,66 @@ input:checked + .slider::before {
 }
 .wrapper img {
     display: block;
+}
+#pop-over {
+    position: fixed;         /* Keeps it anchored to the viewport */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10rem 10rem;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+    display: none;           /* Hidden by default */
+    justify-content: center; /* Optional: center inner content */
+    align-items: center;
+    z-index: 1000;           /* Higher than other content */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+#pop-over.active {
+    opacity: 1;
+    display: flex;           /* Makes it appear and allows flex layout */
+    flex-direction: column;
+}
+.pop-over-box {
+    display: none;
+    align-items: center;
+    text-align: center;
+    justify-items: center;
+    border-radius: 0.5rem;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: #fff;
+}
+.pop-over-box.visible {
+    display: grid;
+}
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+}
+.save-image {
+    display: grid;
+    grid-template-columns: (1, 1fr);
+    align-items: center;
+    text-align: center;
+    justify-items: center;
+    width: fit-content;
+    height: fit-content;
+    border: 2px solid transparent;
+    padding: 8px;
+    cursor: pointer;
+    transition: border 0.3s ease;
+}
+.save-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+.save-image.selected {
+    border: 2px solid #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
 }
