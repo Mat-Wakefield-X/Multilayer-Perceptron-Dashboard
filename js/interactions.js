@@ -271,6 +271,8 @@ document.querySelector('#stash-exit').addEventListener('click', exitPopOver);
 document.querySelector("#save-stash").addEventListener('click', stashImages);
 document.querySelector('#clear-stash').addEventListener('click', clearStash);
 document.querySelector('#remove-stash').addEventListener('click', removeFromStash);
+document.querySelector('#save-disk').addEventListener('click', () => downloadItems(true));
+document.querySelector('#save-disk-stash').addEventListener('click', () => downloadItems(false));
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -609,33 +611,113 @@ function stashImages() {
     const stash1 = document.querySelector('#stash .image-container');
     const stash2 = document.querySelector('#stash-aside .image-container');
     
-    selected.forEach(image => {
-        const clone = image.cloneNode(true);
-        clone.removeAttribute('class');
-        clone.classList.add('stash-image');
-        stash1.appendChild(clone);
-        addEventListenerToSaveImage(clone);
-        
-        const clone2 = clone.cloneNode(true);
-        stash2.append(clone2);
-    });
-
-    exitPopOver();
+    if(selected.length > 0) {
+        selected.forEach(image => {
+            const clone = image.cloneNode(true);
+            clone.removeAttribute('class');
+            clone.classList.add('stash-image');
+            stash1.appendChild(clone);
+            addEventListenerToSaveImage(clone);
+            
+            const clone2 = clone.cloneNode(true);
+            stash2.append(clone2);
+        });
+        exitPopOver();
+    } else {
+        showFeedback("#save-feedback", "Select items to stash...");
+    }
 }
 
 function removeFromStash() {
     const stash = document.querySelector('#stash .image-container');
     
     const removed = stash.querySelectorAll('.stash-image[data-selected="true"]');
-    removed.forEach(image => image.remove());
-    
-    const stash2 = document.querySelector('#stash-aside .image-container');
-    stash2.innerHTML = '';
+    console.log("To remove", removed.length);
+    if(removed.length > 0) {
+        removed.forEach(image => image.remove());
+        
+        const stash2 = document.querySelector('#stash-aside .image-container');
+        stash2.innerHTML = '';
 
-    const images = stash.querySelectorAll(".stash-image");
-    images.forEach(image => {
-        stash2.append(image.cloneNode(true));
-    })
+        const images = stash.querySelectorAll(".stash-image");
+        images.forEach(image => {
+            stash2.append(image.cloneNode(true));
+        })
+    } else {
+        showFeedback("#stash-feedback", 'Select items to remove...');
+    }
+}
+
+function downloadItems(save) {
+    const id = `#${save ? 'save-area' : 'stash'}`;
+    const images = `${save ? 'save' : 'stash'}-image`;
+    const query = `${id} .image-container .${images}[data-selected="true"]`;
+    const selected = document.querySelectorAll(query);
+    console.log("Downloading:", query, selected);
+    if(selected.length > 0)
+    {
+        processDownload(Array.from(selected));
+        exitPopOver();
+    } else {
+        const id2 = `#${save ? 'save' : 'stash'}-feedback`;
+        showFeedback(id2, "Select items to download...");
+    }
+}
+
+async function processDownload(selected) {
+    console.log("Processing download:", selected);
+
+    const files = selected.map((data, index) => {
+        const svg = data.querySelector('svg').cloneNode(true);
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+        const serializer = new XMLSerializer();
+        const file = serializer.serializeToString(svg);
+        const name = data.querySelector('span').textContent.replace(' ', '_');
+        const inputNum = data.getAttribute('input-num');
+        const fileName = `${index}-${name}_[input#${inputNum}].svg`
+
+        return {
+            svg: file,
+            name: fileName
+        }
+    });
+
+    console.log("Files:", files);
+
+    if(files.length > 1) {
+        const zip = new JSZip(); // Use global JSZip
+        files.forEach(file => zip.file(file.name, file.svg));
+        const content = await zip.generateAsync({ type: "blob" });
+        triggerDownload(content, 'images.zip');
+    } else {
+        const blob = new Blob([files[0].svg], { type: "image/svg+xml" });
+        triggerDownload(blob, files[0].name);
+    }
+}
+
+function triggerDownload(content, fileName) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+async function showFeedback(id, message) {
+    const box = document.querySelector(id);
+    const text = box.querySelector('span');
+    if(message) {
+        text.textContent = message;
+        box.classList.add('visible');
+
+        setTimeout(() => {
+            box.classList.remove('visible');
+        }, 2000);
+    } else {
+        box.classList.remove('visible');
+    }
 }
 
 function clearStash() {

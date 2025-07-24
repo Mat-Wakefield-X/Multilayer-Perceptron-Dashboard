@@ -118,7 +118,9 @@ body.no-scroll {
     margin-top: 0;
 }
 .modern-btn.exit {
-    float: right;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
     background: linear-gradient(90deg, #cc0000 0%, #660000 100%);
 }
 .spinner {
@@ -488,6 +490,7 @@ input:checked + .slider::before {
 }
 .pop-over-box {
     display: none;
+    position: relative;
     align-items: center;
     text-align: center;
     justify-items: center;
@@ -551,4 +554,17 @@ input:checked + .slider::before {
 }
 #stash .image-container {
     max-height: 95%;
+}
+.feedback {
+    position: absolute;
+    background: lightpink;
+    padding: 0.5em;
+    border: black solid 1px;
+    border-radius: 5px;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    transition: opacity 1s ease;
+    opacity: 0;
+}
+.feedback.visible {
+    opacity: 1.0;
 }
