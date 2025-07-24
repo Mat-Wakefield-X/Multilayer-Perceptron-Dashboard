@@ -296,10 +296,18 @@
         </section>
         <section id="pop-over">
             <div id="save-area" class="pop-over-box">
-                <h2 style="grid-column: span 2;">Save Images</h2>
-                <div class="image-container"></div>
-                <br>
+                <div style="display: block; width: 100%;">
+                    <button id="save-exit" class="modern-btn exit" style="float: right;">❌</button>
+                    <h2>Save Images</h2>
+                </div>
                 <span style="margin: 1em;"><em>Click on images you want to save or stash...</em></span>
+                <br>
+                <div class="image-container"></div>
+
+                <span>
+                    <button id="save-stash" class="modern-btn" style="width: 100px; padding: 0.5rem;">Stash</button>
+                    <button id="save-disk" class="modern-btn" style="width: 100px; padding: 0.5rem;">Download</button>
+                </span>
             </div>
             <div id="stash" class="pop-over-box">
                 <h2 style="grid-column: span 2;">Stash</h2>

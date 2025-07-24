@@ -265,6 +265,7 @@ document.querySelector("#reset-output").addEventListener("click", function () {
 });
 
 document.querySelector("#stash-add").addEventListener('click', openSaveArea);
+document.querySelector('#save-exit').addEventListener('click', exitPopOver);
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -572,6 +573,7 @@ function createSaveImageHTML(svg) {
     const container = document.createElement('div');
     container.classList.add('save-image');
     container.setAttribute('data-selected', 'false');
+    container.setAttribute('input-num', getInstance().index);
 
     const text = document.createElement('span');
     text.textContent = svg.id.replace(/-/g, ' ').replace(/svg/i, '').trim();
@@ -598,4 +600,20 @@ function addEventListenerToSaveImage(image) {
 function openSaveArea() {
     document.querySelector('#pop-over').classList.add('active');
     document.querySelector('#save-area').classList.add('visible');
+}
+
+function exitPopOver() {
+    const saveArea = document.querySelector('#save-area');
+    const stashArea = document.querySelector('#stash');
+    
+    saveArea.querySelectorAll('.save-image')
+        .forEach(image => {
+            image.setAttribute('data-selected', false);
+            image.classList.remove('selected');
+        })
+
+    document.querySelector('#pop-over').classList.remove('active');
+
+    saveArea.classList.remove('visible');
+    stashArea.classList.remove('visible');
 }
