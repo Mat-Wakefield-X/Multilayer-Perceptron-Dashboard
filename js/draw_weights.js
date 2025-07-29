@@ -135,7 +135,6 @@ function generateInputSVG(input, size){
 export async function saveEncodingImages() {
     const size = 2;
     const imageSize = 28 * size;
-    const columns = 20;
     const zip = new JSZip(); // Use global JSZip
 
     for (let i = 0; i < 800; i++) {
