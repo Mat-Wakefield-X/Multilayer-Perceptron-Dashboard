@@ -238,7 +238,11 @@ document.querySelector('#info-toggle').addEventListener('change', showHideInform
 
 document.querySelector('#input-number').addEventListener('change', runPrediction);
 document.querySelectorAll('.top-down-toggle').forEach(toggle => {
-    toggle.addEventListener('change', handleToggleChange); 
+    const i = parseInt(toggle.id.slice(-1), 10);
+    toggle.addEventListener('change',  e => {
+        shiftToggles(i);
+        handleToggleChange(); 
+    });
 });
 
 document.querySelector("#stash-add").addEventListener('click', () => openPopOver(true));
@@ -289,7 +293,7 @@ function runPrediction(e) {
         activationsAccessor(activations); // Store activations globally
         updatePredictions(prediction, -1);
         updatePredictionDisplay(label);
-        shiftToggles(activations[1]); // Update toggle states based on activations
+        shiftToggles(prediction); // Update toggle states based on activations
         handleToggleChange();
         applyEncodingFeatureStyles();
 
@@ -319,18 +323,16 @@ function updatePredictionDisplay(label) {
     document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
     for (const [i, value] of activations[1].entries()) {
         const cell = document.querySelector(`#output-${i}`);
-        console.log(`#output-${i}`, cell);
         cell.innerText = value.toFixed(4); 
         const container = document.querySelector(`#output-${i}-cell`);
         container.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
     }
 }
 
-function shiftToggles(activations) {
+function shiftToggles(selected) {
     const toggles = document.querySelectorAll('.top-down-toggle');
     toggles.forEach((toggle, i) => {
-        const value = activations[i];
-        toggle.checked = value >= 0.0001; // Check if activation is above threshold
+        toggle.checked = selected == i; // Check if activation is above threshold
     });
 }
 
