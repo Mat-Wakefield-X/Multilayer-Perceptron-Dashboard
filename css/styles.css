@@ -400,7 +400,8 @@ body.no-scroll {
     align-content: center;   /* centers vertically */
     align-items: center;
 }
-input.output-value {
+.output-value {
+    background-color: rgba(255, 255, 255, 0.75);
     width: 7ch;
     font: inherit;
     text-align: center;

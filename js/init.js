@@ -7,6 +7,7 @@ console.log('Loading TensorFlow.js library...');
 export const model = await tf.loadLayersModel('data/model_weights/model.json');
 export const weights1 = await model.layers[0].getWeights()[0].array();
 export const weights2 = await model.layers[1].getWeights()[0].array();
+export const bias2 = await model.layers[1].getWeights()[1].array();
 
 export const colourBar = [
   [255, 0, 0],    // Red

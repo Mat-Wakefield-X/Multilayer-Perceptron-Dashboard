@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor, manualAggregateAccessor, salienciesAccessor, maxSimAccessor } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor, manualAggregateAccessor, salienciesAccessor, maxSimAccessor, bias2 } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity as findMaxSimilarity, computeAggregateInstance } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -241,29 +241,6 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     toggle.addEventListener('change', handleToggleChange); 
 });
 
-document.querySelectorAll('.output-value').forEach(input => {
-    input.addEventListener("input", function (e) {
-        let cleaned = this.value
-            .replace(/[^\d.-]/g, '')                   // Remove everything except digits, dot, and minus
-            .replace(/(?!^)-/g, '')                    // Remove all minus signs except the first
-            .replace(/^(-?\.)/, '$1')                  // Prevent starting with just a dot after optional minus
-            .replace(/(\..*)\./g, '$1');               // Allow only one dot
-
-        this.value = cleaned;
-    });
-    input.addEventListener('blur', function() {
-        handleOutpuValueChange(this);
-    })
-    input.addEventListener('keydown', function(e) {
-        if(e.key === "Enter") handleOutpuValueChange(this);
-    })
-});
-document.querySelector("#reset-output").addEventListener("click", function () {
-    updatePredictions(null, -1);
-    updatePredictionDisplay(input.label);
-    handleToggleChange();
-});
-
 document.querySelector("#stash-add").addEventListener('click', () => openPopOver(true));
 document.querySelector("#stash-expand").addEventListener('click', () => openPopOver(false));
 document.querySelector('#save-exit').addEventListener('click', exitPopOver);
@@ -297,18 +274,6 @@ async function handleToggleChange(generate=true) {
     if(maxSim) await drawMaxSimilarity();
 }
 
-function handleOutpuValueChange(input) {
-    // Parse and format if cleaned string is a valid number
-    const parsed = parseFloat(input.value);
-    if (!isNaN(parsed)) {
-        input.value = parsed.toFixed(4);
-    }
-    const match = input.id.match(/output-(\d+)/);
-    const index = match ? parseInt(match[1], 10) : null;
-    updatePredictions(null, index, parsed);
-    handleToggleChange();
-}
-
 function runPrediction(e) {
     let index = parseInt(e.target.value, 10);
     if (isNaN(index) || index < 1 || index > 10000) {
@@ -319,13 +284,18 @@ function runPrediction(e) {
     
     const label = loadInput(index);
 
-    runMNISTInference(index).then(({ prediction, activations }) => { 
+    runMNISTInference(index).then(({ prediction, activations }) => {
+        console.log("Activations", activations);
         activationsAccessor(activations); // Store activations globally
         updatePredictions(prediction, -1);
         updatePredictionDisplay(label);
         shiftToggles(activations[1]); // Update toggle states based on activations
         handleToggleChange();
         applyEncodingFeatureStyles();
+
+        const layer2Activations = weights2[0].map((_, j) => activations[0].reduce((sum, val, i) => sum + val * weights2[i][j], 0));
+        console.log("Activations2", layer2Activations);
+        console.log("Biases", bias2);
     });
 }
 
@@ -349,7 +319,8 @@ function updatePredictionDisplay(label) {
     document.querySelector('#output-prediction-label').innerText = predictionLabel; // Update prediction display
     for (const [i, value] of activations[1].entries()) {
         const cell = document.querySelector(`#output-${i}`);
-        cell.value = value.toFixed(4); 
+        console.log(`#output-${i}`, cell);
+        cell.innerText = value.toFixed(4); 
         const container = document.querySelector(`#output-${i}-cell`);
         container.style.backgroundColor = greenOpacityGradient(value); // Set background color based on value
     }
@@ -473,8 +444,11 @@ function drawInputSaliency() {
 }
 
 function computeInputSaliency(comparison) {
-    const input = getInstance().image;
-    return input.map((val, idx) => val * comparison.image[idx])
+    const input = getInstance();
+    const arrayMultiplication = input.image.map((val, idx) => val * comparison.image[idx]);
+    const dotProduct = arrayMultiplication.reduce((sum, val) => sum + val, 0);
+    console.log("Dot Product", dotProduct);
+    return arrayMultiplication;
 }
 
 async function drawMaxSimilarity() {
