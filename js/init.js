@@ -33,6 +33,7 @@ const input = {
   label: null,
   image: null
 }
+let decodeSelection = null;
 const decodes = [];
 const saliencies = [];
 const maxImages = [];
@@ -138,6 +139,14 @@ export function normsMinAccessor(min){
   } else {
     return globalNorms.min;
   }
+}
+
+export function selectionAccessor(id){
+    if(id !== undefined) {
+      decodeSelection = id;
+    } else {
+      return decodeSelection;
+    }
 }
 
 export function decodingsAccessor(decodings){

@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, manualAggregateAccessor, salienciesAccessor, maxSimAccessor, bias2 } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, manualAggregateAccessor, salienciesAccessor, maxSimAccessor, bias2, selectionAccessor } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity as findMaxSimilarity, computeAggregateInstance } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -13,7 +13,10 @@ document.querySelector('#reset-manual').addEventListener('click', resetSelection
 
 document.querySelector('#weighting-toggle').addEventListener('change', function() {
     applyEncodingFeatureStyles();
+    showHideHighlightingTypeSwitch();
 });
+
+document.querySelector("#reconstruction-toggle").addEventListener('change', applyEncodingFeatureStyles);
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -73,11 +76,11 @@ function showEncodingTooltip(event, feature, img, wrapper) {
         // If feature is provided, set content; otherwise, just reposition
         if (feature) {
             const activation = activationsAccessor()[0][feature.number].toFixed(4);
-            const modulation = modulationsAccessor()[feature.number].toFixed(4);
+            const modulation = weights2[feature.number][selectionAccessor()].toFixed(4);
             tooltip.innerHTML = `
                 <div style="font-weight:bold; margin-bottom:6px;">${feature.name}</div>
                 <img src="${img.src}" style="width:${img.width * scale}px;height:${img.height * scale}px;display:block;margin:auto;" />
-                <div style="margin-top: 6px;"><strong>Activation:</strong> ${activation} <strong>Modulation:</strong> ${modulation}</div>
+                <div style="margin-top: 6px;"><strong>Activation:</strong> ${activation} <strong>Weight:</strong> ${modulation}</div>
             `;
         }
         tooltip.style.display = 'block';
@@ -166,11 +169,18 @@ function resetSelections() {
 export function applyEncodingFeatureStyles(){
     const wrappers = document.querySelectorAll('#encoding_features .wrapper');
     const style = document.querySelector("#weighting-toggle").checked;
-    const activations = activationsAccessor()[0];
+    const modulation = document.querySelector('#reconstruction-toggle').checked;
+    const selection = selectionAccessor();
+
+    const activations = modulation ?
+        activationsAccessor()[0].map((value, idx) => (value > 0) ? weights2[idx][selection] : 0) :
+        activationsAccessor()[0];
+
+    console.log("Modulation", selection, modulation, activations);
 
     if(activations != null)
     {
-        const maxActivation = Math.max(...activations);
+        const maxActivation = Math.max(...activations.map(Math.abs));
         wrappers.forEach((wrapper, i) => {
             const img = wrapper.querySelector("img");
             const tint = wrapper.querySelector(".tinted");
@@ -208,6 +218,11 @@ function computeOpacityStyles(value, maxActivation) {
     }
 }
 
+export function showHideHighlightingTypeSwitch(){
+    const highlighting = document.querySelector("#weighting-toggle").checked;
+    document.querySelector('#type-switch').style.display = highlighting ? null : 'none';
+}
+
 /*
 -------------------------------------------------------------------------------
     DECODING
@@ -223,8 +238,7 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
 document.querySelector('#max-sim-toggle').addEventListener('change', function (e) {
     showHideMaxSim();
     if(e.target.checked) {
-        const element = document.querySelector('.top-down-toggle:checked');
-        const id = parseInt(element.id.slice(-1), 10);
+        const id = selectionAccessor();
         handleToggleChange(id, false);
     }
 });
@@ -320,6 +334,7 @@ function updatePredictionDisplay(label) {
 }
 
 function shiftToggles(selected) {
+    selectionAccessor(selected);
     const toggles = document.querySelectorAll('.top-down-toggle');
     toggles.forEach((toggle, i) => {
         toggle.checked = selected == i; // Check if activation is above threshold
@@ -338,8 +353,6 @@ function decodeRepresentations(i) {
     const positiveSelections = getFeatures(i, true);
     const negativeSelections = getFeatures(i, false);
     const allSelections = getFeatures(i);
-
-    console.log("Selctions", positiveSelections, negativeSelections, allSelections);
 
     const positiveData = generateImage(positiveSelections, i);
     const negativeData = generateImage(negativeSelections, i);
@@ -418,8 +431,6 @@ function drawInputSaliency() {
 function computeInputSaliency(comparison) {
     const input = getInstance();
     const arrayMultiplication = input.image.map((val, idx) => val * comparison.image[idx]);
-    const dotProduct = arrayMultiplication.reduce((sum, val) => sum + val, 0);
-    console.log("Dot Product", dotProduct);
     return arrayMultiplication;
 }
 
