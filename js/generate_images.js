@@ -1,10 +1,10 @@
-import { weights1, mnistTrainSize, mnistTrainImagesBuffer } from "./init.js";
+import { weights1, weights2, mnistTrainSize, mnistTrainImagesBuffer } from "./init.js";
 import { extractMnistImage } from "./mnist.js";
 
-export function generateImage(selections, activations = null, abs = true) {
+export function generateImage(selections, weight = -1, abs = true) {
     const values = Array.from({ length: 784 }, (_, i) => 
         selections.reduce((sum, num) => 
-            sum + getFeatureValue(i, num, activations, abs), 0));
+            sum + getFeatureValue(i, num, weight, abs), 0));
     const max = Math.max(...values);
     const min = Math.min(...values);
     return {
@@ -14,10 +14,10 @@ export function generateImage(selections, activations = null, abs = true) {
     }
 }
 
-function getFeatureValue(i, num, activations, abs) {
+function getFeatureValue(i, num, weight, abs) {
     let value = weights1[i][num];
-    if (activations) {
-        value *= abs ? Math.abs(activations[num]) : activations[num];
+    if (weight != -1) {
+        value *= abs ? Math.abs(weights2[num][weight]) : weights2[num][weight];
     }
     return value;
 }

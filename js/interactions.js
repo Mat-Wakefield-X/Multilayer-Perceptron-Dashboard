@@ -1,4 +1,4 @@
-import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, model, modulationsAccessor, manualAggregateAccessor, salienciesAccessor, maxSimAccessor, bias2 } from "./init.js";
+import { nodeSelections, activationsAccessor, weights2, normsToggleAccessor, normsMaxAccessor, normsMinAccessor, decodingsAccessor, loadInstance, getInstance, updatePredictions, getModelPredictions, manualAggregateAccessor, salienciesAccessor, maxSimAccessor, bias2 } from "./init.js";
 import { generateAggregateImage, drawInputImage, drawInstancesGroup } from "./draw_weights.js";
 import { generateImage, getMaxSimilarity as findMaxSimilarity, computeAggregateInstance } from "./generate_images.js";
 import { runMNISTInference } from "./run_model.js";
@@ -13,10 +13,7 @@ document.querySelector('#reset-manual').addEventListener('click', resetSelection
 
 document.querySelector('#weighting-toggle').addEventListener('change', function() {
     applyEncodingFeatureStyles();
-    showHideHighlightingTypeSwitch();
 });
-
-document.querySelector("#modulation-toggle").addEventListener('change', applyEncodingFeatureStyles);
 
 export function tooltipEventListener(elements) {
     console.log('Applying event listeners to encoding images');
@@ -169,9 +166,8 @@ function resetSelections() {
 export function applyEncodingFeatureStyles(){
     const wrappers = document.querySelectorAll('#encoding_features .wrapper');
     const style = document.querySelector("#weighting-toggle").checked;
-    const modulation = document.querySelector('#modulation-toggle').checked;
+    const activations = activationsAccessor()[0];
 
-    const activations = modulation ? modulationsAccessor() : activationsAccessor()[0];
     if(activations != null)
     {
         const maxActivation = Math.max(...activations);
@@ -179,7 +175,7 @@ export function applyEncodingFeatureStyles(){
             const img = wrapper.querySelector("img");
             const tint = wrapper.querySelector(".tinted");
             if (style) {
-                const values = computeOpacityStyles(activations[i], maxActivation, modulation);
+                const values = computeOpacityStyles(activations[i], maxActivation);
             
                 img.style.opacity = values.opacity;
                 tint.style.backgroundColor = values.tint;
@@ -198,7 +194,7 @@ export function applyEncodingFeatureStyles(){
     }
 }
 
-function computeOpacityStyles(value, maxActivation, modulation) {
+function computeOpacityStyles(value, maxActivation) {
     const normalised = Math.abs(value) / maxActivation;
     const scaled = 0.05 + (normalised * 0.95);
     const opacity = Math.min(scaled, 1).toFixed(3);
@@ -208,13 +204,8 @@ function computeOpacityStyles(value, maxActivation, modulation) {
 
     return {
         opacity: (value == 0) ? 0 : opacity,
-        tint : (value == 0 || !modulation) ? null : colour
+        tint : (value == 0) ? null : colour
     }
-}
-
-export function showHideHighlightingTypeSwitch(){
-    const highlighting = document.querySelector("#weighting-toggle").checked;
-    document.querySelector('#type-switch').style.display = highlighting ? null : 'none';
 }
 
 /*
@@ -231,7 +222,11 @@ document.querySelector('#norms-toggle').addEventListener('change', function (e) 
 
 document.querySelector('#max-sim-toggle').addEventListener('change', function (e) {
     showHideMaxSim();
-    if(e.target.checked) handleToggleChange(false);
+    if(e.target.checked) {
+        const element = document.querySelector('.top-down-toggle:checked');
+        const id = parseInt(element.id.slice(-1), 10);
+        handleToggleChange(id, false);
+    }
 });
 
 document.querySelector('#info-toggle').addEventListener('change', showHideInformation);
@@ -241,7 +236,7 @@ document.querySelectorAll('.top-down-toggle').forEach(toggle => {
     const i = parseInt(toggle.id.slice(-1), 10);
     toggle.addEventListener('change',  e => {
         shiftToggles(i);
-        handleToggleChange(); 
+        handleToggleChange(i); 
     });
 });
 
@@ -259,10 +254,10 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function handleToggleChange(generate=true) {
+async function handleToggleChange(id, generate=true) {
     await sleep(300); // allow animation to kick in
     if(generate) {
-        generateTopDown();
+        decodeRepresentations(id);
 
         await sleep(0);
         drawDecodings();
@@ -270,8 +265,8 @@ async function handleToggleChange(generate=true) {
         await sleep(0);
         drawInputSaliency();
 
-        await sleep(0);
-        applyEncodingFeatureStyles();
+        // await sleep(0);
+        // applyEncodingFeatureStyles();
     }
 
     const maxSim = document.querySelector('#max-sim-toggle').checked;
@@ -294,12 +289,7 @@ function runPrediction(e) {
         updatePredictions(prediction, -1);
         updatePredictionDisplay(label);
         shiftToggles(prediction); // Update toggle states based on activations
-        handleToggleChange();
-        applyEncodingFeatureStyles();
-
-        const layer2Activations = weights2[0].map((_, j) => activations[0].reduce((sum, val, i) => sum + val * weights2[i][j], 0));
-        console.log("Activations2", layer2Activations);
-        console.log("Biases", bias2);
+        handleToggleChange(prediction);
     });
 }
 
@@ -344,21 +334,16 @@ function greenOpacityGradient(value) {
     return `rgba(85, 170, 85, ${value})`;
 }
 
-function generateTopDown() {
-    // Determine modulated activations for the first layer.
-    const modulations = computeModulations();
-    modulationsAccessor(modulations);
-    const modulated = activationsAccessor()[0].map((val, idx) => val * modulations[idx]);
+function decodeRepresentations(i) {
+    const positiveSelections = getFeatures(i, true);
+    const negativeSelections = getFeatures(i, false);
+    const allSelections = getFeatures(i);
 
-    // Generate aggregate images based on positive, negative, and all selections.
-    const positiveSelections = getSelections(modulated, true);
-    const positiveData = generateImage(positiveSelections, modulated);
+    console.log("Selctions", positiveSelections, negativeSelections, allSelections);
 
-    const negativeSelections = getSelections(modulated, false);
-    const negativeData = generateImage(negativeSelections, modulated);
-
-    const allSelections = getSelections(modulated, null);
-    const allData = generateImage(allSelections, modulated, false);
+    const positiveData = generateImage(positiveSelections, i);
+    const negativeData = generateImage(negativeSelections, i);
+    const allData = generateImage(allSelections, i, false);
 
     const decodings = [positiveData, negativeData, allData];
 
@@ -366,21 +351,7 @@ function generateTopDown() {
     decodingsAccessor(decodings);
 }
 
-function computeModulations() {
-    const checkedStates = Array.from(document.querySelectorAll('.top-down-toggle')).map(toggle => toggle.checked);
-    // Determine modulation values for encoding features based on selected outputs.
-    const outputActivations = getModelPredictions().activations;
-    const modulations = checkedStates.map((checked, i) => {
-        const select = checked ? 1 : 0;
-        const y = outputActivations[i];
-        // const y = 1;
-        return weights2.map((weight) => weight[i] * select * y);
-        }).reduce((acc, arr) => acc.map((val, idx) => val + arr[idx]));
-    const featureActivations = activationsAccessor()[0];
-    return modulations.map((mod, i) => mod * featureActivations[i]);
-}
-
-function getSelections(modulated, positive){
+function getFeatures(i, positive){
     let condition = null;
     switch (positive){
         case true:
@@ -390,15 +361,14 @@ function getSelections(modulated, positive){
             condition = (value) => value < 0;
             break;
         default:
-            condition = (value) => value !== 0;
+            condition = (value) => true;
     }
-    return modulated
-        .map((value, idx) => condition(value) ? idx : -1)
-        .filter(idx => idx !== -1);
+    return activationsAccessor()[0].map((value, idx) => value > 0 ? idx : -1)
+                .filter(idx => idx !== -1)
+                .filter(idx => condition(weights2[idx][i]));
 }
 
 function setGlobalNorms(images) {
-    const globalNorms = normsToggleAccessor();
     const max = Math.max(...images.map(img => img.max));
     const min = Math.min(...images.map(img => img.min));
     normsMaxAccessor(max);
