@@ -25,13 +25,11 @@
             <p class="information">When an input is processed through the network, it activates feature encodings on the first network layer. This is based on the amount of shared data
                 between the input and the feature encoding. (To explore these encodings goto the encodings tab).</p>
             <p class="information">The output layer then combines the activated feature encodings using a weighted aggregation (feature importance weights are learned during training). The 
-                combination of features reconstructs an input pattern with which the input has implicitly been compared. Unfortunately, these patterns are black boxed within the network, as
-                the network's only goal is make a decision about best matching output category.</p>
-            <p class="information">To view the encodings the network can be run in reverse. The output activations are used to modulate the feature encodings to reflect their weights in the
-                decision. The modulated features are then aggregated in a blank input space to show the hidden representations.</p>
-            <p class="information">Each output node encodes a positive concept and a negative concept. If the input is a closer match to the positive concept than the negative
-                concept, then the output node will be activated. Stronger activations indicate greater similarity to the input. Negative concepts serve the role of deselecting nodes when the 
-                input contains the wrong features.</p>
+                combination of features reconstructs an input pattern with which the input has implicitly been compared. Unfortunately, these patterns are black boxed within the network, in 
+                favour of output selection.</p>
+            <p class="information">To view the encodings all that is required is to explicitly aggregate the encoding features following an output node's connections weights pattern. Each output 
+                node encodes a positive concept and a negative concept. If the input is a closer match to the positive concept than the negative concept, then the output node will be activated. 
+                Stronger activations indicate greater similarity to the input. Negative concepts serve the role of deselecting nodes when the input contains the wrong features.</p>
             <p class="information"><strong>Note:</strong> you can hide this explanatory information by using the toggle on the right-hand side of the page.</p>
             <div id="input" class="dashboard-area">
                 <h3>Input Selection</h3>
@@ -50,11 +48,7 @@
             <div id="output" class="dashboard-area">
                 <h3>Network Output</h3>
                 <p class="information">Here is the network's maximum prediction as well as the output node activation levels.</p> 
-                <p class="information">You can use the toggles to select the decodings to visualise further down the page.</p>
-                <p class="information"><strong>Note:</strong> it is possible to select multiple output nodes. Doing so will
-                    combine their encodings in the visualisation. If the activation strengths are very different you won't notice any effect. However, in some cases two or more nodes
-                    may have similar activation strengths (e.g. try input 116). In these circumstances the visualisation will show the <em>shared</em> features between the
-                    selected concepts.</p>
+                <p class="information">You can use the toggles to select the decoding to visualise further down the page.</p>
                 <span style="display: inline-block; font-weight: bold;">Prediction:</span>
                 <span id="output-prediction-label" style="display: inline-block;"></span>
                 <br/>
@@ -144,22 +138,15 @@
             <div id="decoded" class="dashboard-area">
                 <h3>Decoded Memory</h3>
                 <p class="information">Here are the decoded representations.</p>
-                <p class="information">The decodings show the positive, negative, and critical (i.e. hyperplane) encodings for the selected output(s). Yellow, white and grey colours show a positive 
-                    features. Blue and red colours show a negative features.</p>
-                <p class="information">The positive encoding is arguably the most important as it reflects the encoded concept given the input presented. To select an ouput, the input must
-                    match this representation well (you can check the match by looking at the input saliency row).</p>
-                <p class="information">The negative encoding serves the role of deselecting a node. If the input has features that match the negative representation, the node may be deselected.</p>
-                <p class="information">The critical column shows the critical, discriminative features for the decision. It reflects the combination of both the positive and negative concepts
-                    that are encoded into the output node. This is otherwise known as a the <em>hyperplane</em> that is encoded into the neuron's connection weights.</p>
+                <p class="information">The decodings show the positive, negative, and all (i.e. hyperplane) connection weight encodings for the selected output. Yellow, white and grey colours show 
+                    positive features. Blue and red colours show negative features.</p>
                 <p class="information">You will note from exploring different inputs with the same concept that the encodings changes depending on the input presented. For example, try inputs
                     2, 36, 44, and 48. This can be understood as the network retrieving and compiling a different memory based on the input information presented. This has been likened to a 
                     content-addressable-memory in which memory representations are retrieved and then generalised through aggregation. This allows the network to store a lot of training data 
                     while also generalising to unseen data that can be composed of combinations of seen data.</p>
                 <p class="information">The bottom of the display shows the maximum similarity training instances to the decoded representations. These can be useful when the network's encoded 
-                    representation is unclear. These are slow to retrieve as they require an exhuastive memory search through the original training data (the very problem the Multilayer Perceptron
-                    is so good at solving).</p>
-                <p class="information">Below the maximum similarity training instances is an aggregation of the group. This is included to show you how aggregating instances can generate a new
-                    representation. This likely what is occurring within the Multilayer Perceptron as well, and allows for greater generalisation from the stored data to new data.</p>
+                    representation is unclear. For example, look at input 8. The retrieval of nearest neighbours is slow as it requires an exhuastive memory search through the original training data
+                    (the very problem the Multilayer Perceptronis so good at solving). (<strong>Note:</strong> This process can be toggled off below)</p>
                 <p class="information"><strong>Note:</strong> global normalisation will show the relative activation between positive, negative, and critical decodings in terms of brightness 
                     (brighter means a better match). Toggling to local normalisation will make each decoding more visible by removing this between representation comparison information.</p>
                 <div class="switch-container">
@@ -179,7 +166,7 @@
                 <div class="grid-table-output-4">
                     <span class="top-cell" style="font-weight: bold;">Positive</span>
                     <span class="top-cell" style="font-weight: bold;">Negative</span>
-                    <span class="top-cell" style="font-weight: bold;">Critical</span>
+                    <span class="top-cell" style="font-weight: bold;">All</span>
                     <span class="top-cell"></span>
                     <span class="middle-cell">
                         <svg id="saliency-positive-svg" width="140px" height="140px" viewbox="0 0 140 140"></svg>
@@ -237,6 +224,11 @@
         <section id="inspect" class="section">
             <!-- Inspect content goes here -->
             <h2>Inspect Encodings</h2>
+            <p class="information">Use the toggle(s) to view all encodings, encoding selected by the current input, and encodings in the positive and 
+                negative distributions for the selected output node on the Dashboard tab. For selected encodings, opacity indicates the degree of activation,
+              while green indicates positive and red indicates negative.</p>
+            <p class="information">Hovering your mouse over an encoding will provide a zoomed in view.</p>
+            <p class="information">Clicking an encoding will add it to an aggregation displayed on the righthand panel.</p>
             <div class="switch-container">
                 <span style="font-weight: bold;">Activation Weighting: </span>
                 <label class="switch">
@@ -261,7 +253,11 @@
         <section id="info" class="section">
             <!-- Information content goes here -->
             <h2>Information</h2>
-            <p>Find information and documentation about this dashboard.</p>
+            <p>This dashboard is supplementary material to a scholarly article titled;</p> 
+            <p><strong>'Making Multilayer Perceptron Comprehensible' (2025).</strong></p>
+            <p>Please consult the paper for a deeper analysis of Multilayer Perceptron as a generalising Content-Addressable-Memory system.</p>
+            <p>The author of the paper and this dashboard is Mathew Wakefield, Swinburne University of Technology, Melbourne, Australia.</p>
+            <a href="mailto:mwakefield@swin.edu.au">mwakefield@swin.edu.au</a>
         </section>
         <section class="aside">
             <h2>Controls</h2>
