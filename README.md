@@ -1,6 +1,12 @@
 # Multilayer Perceptron Dashboard
 
-This project is a browser based dashboard for exploring how Multilayer Perceptron encodes data. The dashboard includes a fully trained Multilayer Perceptron for the MNIST digits benchmark dataset.
+This project is a browser based dashboard for exploring how Multilayer Perceptron encodes data. The dashboard includes a fully trained Multilayer Perceptron for the MNIST digits benchmark dataset. The main focus of the dashboard is on *decoding* artificial neuron's black-boxed representations.
+
+![Screenshot of the dashboard's main page](images/Screenshot.png)
+
+Please note that the dashboard has limited responsive layout and is not designed for screens < 900px wide.
+
+The dashboard is intended as supplementary material for a scholarly article: 'On Making Deep Neural Networks Comprehensible' by M. Wakefield. The article is currently under submission and not yet published.
 
 ## Dataset
 
