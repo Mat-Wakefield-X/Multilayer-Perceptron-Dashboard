@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Wakefield"
+  given-names: "Mathew"
+  orcid: "https://orcid.org/0009-0002-1526-049X"
+title: "Decoding Multilayer Perceptron Dashboard"
+version: 1.0.0
+date-released: 2025-08-22
+url: "https://github.com/Mat-Wakefield-X/Multilayer-Perceptron-Dashboard.git"
