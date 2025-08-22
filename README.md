@@ -62,7 +62,7 @@ The trained model has a test-set error of 1.37%.
 To run the dashboard download or clone the repo to your device.
 
 ```bash
-git clone https://github.com/your-username/dissertation-publication-dashboard.git
+git clone https://github.com/Mat-Wakefield-X/Multilayer-Perceptron-Dashboard.git
 ```
 
 ### Run the Dashboard Locally
