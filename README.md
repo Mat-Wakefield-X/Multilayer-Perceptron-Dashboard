@@ -37,6 +37,20 @@ model = Sequential()
 model.add(Input(shape=(784,)))
 model.add(Dense(800, activation='relu'))  # Hidden layer with 800 units
 model.add(Dense(10, activation='softmax'))  # Output layer with 10 units
+
+# Compile the model
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+# Train the model
+model.fit(x_train, y_train, epochs=45, batch_size=128, validation_data=(x_test, y_test))
+
+# Save
+model.save('trained_800ReLU-10sm_ce_adam.keras')
+
+# Evaluate the model
+loss, accuracy = model.evaluate(x_test, y_test)
+print(f'\n\nTest Accuracy: {accuracy * 100:.2f}%')
+print(f'Test Error: {(1.0 - accuracy) * 100:.2f}%')
 ```
 
 The trained model has a test-set error of 1.37%.
